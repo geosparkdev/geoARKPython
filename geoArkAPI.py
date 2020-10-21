@@ -71,6 +71,54 @@ def create_app(test_config=None):
 
 
 
+    @app.route('/buildObject', methods=['GET'])
+    def buildObject():
+        #get updated covid cases
+        covid_cases=pd.read_csv("https://usafactsstatic.blob.core.windows.net/public/data/covid-19/covid_confirmed_usafacts.csv")
+        MO_covid_cases=covid_cases.loc[covid_cases.State=='MO']
+        end=len(MO_covid_cases.columns)
+        keys=MO_covid_cases.columns[4:end]
+
+        #get geoJSON data
+        sslContext = ssl.SSLContext()
+        with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json',
+            context=sslContext) as response:
+            counties = json.load(response)
+
+
+        state_FIPS='29'
+        chosen=[]
+        temp=[]
+        for i in range(0,len(counties.get("features"))):
+            if counties.get("features")[i].get("properties").get("STATE")==state_FIPS:
+                temp=counties.get("features")[i]
+                for x in keys:  
+                    temp.get("properties")[x]=str(MO_covid_cases.loc[MO_covid_cases.countyFIPS==int(counties.get("features")[i].get("properties").get("STATE")+counties.get("features")[i].get("properties").get("COUNTY"))][x].values[0])
+                chosen.append(temp)
+
+
+
+        new_dict={'type':'FeatureCollection','features':chosen}
+
+        legend=pd.DataFrame(MO_covid_cases.max()[4:]).reset_index().rename(columns={'index':'keys',0:'max'})
+        legend=legend.merge(pd.DataFrame(MO_covid_cases.min()[4:]).reset_index().rename(columns={'index':'keys',0:'min'}),on='keys',how='left')
+        legend['max']=legend['max'].astype(str)
+        legend['min']=legend['min'].astype(str)
+        legend['display']="COVID 19 Cases"
+        legend=legend.to_dict('records')
+
+        
+
+
+        return jsonify([new_dict,legend])
+
+
+
+
+
+
+
+
 
 
 
