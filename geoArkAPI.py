@@ -26,14 +26,14 @@ MONGO_HOST = "128.206.117.150"
 MONGO_USER = "haithcoatt"
 MONGO_PASS = "Ke11ieJean"
 
-#server = SSHTunnelForwarder(
- #   MONGO_HOST,
- #   ssh_username=MONGO_USER,
- #   ssh_password=MONGO_PASS,
- #   remote_bind_address=('127.0.0.1', 27017)
-#)
+server = SSHTunnelForwarder(
+    MONGO_HOST,
+    ssh_username=MONGO_USER,
+    ssh_password=MONGO_PASS,
+    remote_bind_address=('127.0.0.1', 27017)
+)
 
-#client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local port
+client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local port
 
 
 def create_app(test_config=None):
