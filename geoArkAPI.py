@@ -111,12 +111,14 @@ def create_app(test_config=None):
         return jsonify([new_dict,legend])
 
 
-    @app.route('/getDataCat', methods=['GET'])
+    @app.route('/getDataCat', methods=['POST'])
     def getDataCat():
 
         server.start()
         db = client.metadata
-         
+        requestData=json.loads(request.data)
+
+
         ## search metadata table for attributes that have been tagged with category and subcategory keywords
         metadata_search=pd.DataFrame(db.metadata.aggregate([
                 {
@@ -143,8 +145,8 @@ def create_app(test_config=None):
             {
                 "$match":{
                     "$and":[
-                        {"attributes.tags":category},
-                        {"attributes.tags":subcategory}
+                        {"attributes.tags":requestData[0]},
+                        {"attributes.tags":requestData[1]}
                     ]
 
                 
@@ -235,6 +237,8 @@ def create_app(test_config=None):
         geoJSON={"type":"FeatureCollection","features":back_together.to_dict('records')}
 
         final=[geoJSON,metadata.to_dict('records')]
+
+        server.stop()
 
         return jsonify(final)
 
