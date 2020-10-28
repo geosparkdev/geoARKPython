@@ -179,6 +179,17 @@ def create_app(test_config=None):
         metadata=metadata_search.drop_duplicates().merge(attributes,on='dataset_id',how='left')
         metadata=metadata.merge(originators[['originator_id','originator_name']].drop_duplicates(),on='originator_id',how='left')  
 
+        ## find max and min values and add to metadata
+        temp_df=pd.DataFrame()
+        for index,row in metadata[['dataset_id','loc_id','attr_label']].iterrows():
+            meta_temp=pd.DataFrame(db.bigdata.find({"dataset_id":row.dataset_id},{row.loc_id:1,row.attr_label:1,"_id":0}))
+            upper=meta_temp[row.attr_label].max()
+            lower=meta_temp[row.attr_label].min()
+            temp_df=temp_df.append({"attr_label":row.attr_label,
+                                "min":lower,
+                                "max":upper}, ignore_index=True)
+        metadata=metadata.merge(temp_df, on='attr_label',how='left')
+
         ## pull data from big data table 
         data=[]
 
