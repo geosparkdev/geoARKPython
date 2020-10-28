@@ -22,20 +22,18 @@ from urllib.request import urlopen
 import plotly.express as px
 import ssl
 
-MONGO_HOST = "192.168.1.202"
-MONGO_USER = "tiffyson"
-MONGO_PASS = "Hented123!"
+MONGO_HOST = "128.206.117.150"
+MONGO_USER = "haithcoatt"
+MONGO_PASS = "Ke11ieJean"
 
+#server = SSHTunnelForwarder(
+ #   MONGO_HOST,
+ #   ssh_username=MONGO_USER,
+ #   ssh_password=MONGO_PASS,
+ #   remote_bind_address=('127.0.0.1', 27017)
+#)
 
-server = SSHTunnelForwarder(
-    MONGO_HOST,
-    ssh_username=MONGO_USER,
-    ssh_password=MONGO_PASS,
-    remote_bind_address=('127.0.0.1', 27017)
-)
-
-
-client = pymongo.MongoClient('192.168.1.202')
+#client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local port
 
 
 def create_app(test_config=None):
@@ -113,15 +111,121 @@ def create_app(test_config=None):
         return jsonify([new_dict,legend])
 
 
+    @app.route('/getDataCat', methods=['GET'])
+    def getDataCat():
+
+        server.start()
+        db = client.metadata
+         
+        ## search metadata table for attributes that have been tagged with category and subcategory keywords
+        metadata_search=pd.DataFrame(db.metadata.aggregate([
+                {
+                "$project": 
+                        {
+                        "attributes.tags":1,
+                            "_id":0,
+                            "dataset_id":1,
+                            "originator_id":1,
+                            "loc_id":1,
+                            "attributes.dataset_id":1,
+                            "attributes.entity_type":1,
+                            "attributes.attr_label":1,
+                            "attributes.attr_desc":1,
+                            "attributes.start_date":1,
+                            "attributes.end_date":1
+
+                        },
+                    
+            },
+            {
+                "$unwind":"$attributes"
+            },
+            {
+                "$match":{
+                    "$and":[
+                        {"attributes.tags":category},
+                        {"attributes.tags":subcategory}
+                    ]
+
+                
+                }
+            },
+            {
+                "$lookup":
+                {
+                    "from":"originators",
+                    "localField":"originator_id",
+                    "foreignField":"originator_id",
+                    "as":"originator"
+                }
+            },
+            {
+                "$unwind":"$originator"
+            }
+        ]))
+    
+       
+        ## pull out attributes and originator data
+        attributes=pd.json_normalize(metadata_search["attributes"])
+
+        originators=pd.json_normalize(metadata_search["originator"])
+        originators=originators.drop(columns="_id")
+
+        ## drop attributes and originator fields from metadata search table
+        metadata_search=metadata_search.drop(columns={"attributes","originator"})     
+
+        ## create completed metadata table
+        metadata=pd.DataFrame()
+        metadata=metadata_search.drop_duplicates().merge(attributes,on='dataset_id',how='left')
+        metadata=metadata.merge(originators[['originator_id','originator_name']].drop_duplicates(),on='originator_id',how='left')  
+
+        ## pull data from big data table 
+        data=[]
+
+        for index,row in metadata_comp[['dataset_id','loc_id','attr_label']].iterrows():
+            data_dict=pd.DataFrame(db.bigdata.find({"dataset_id":row['dataset_id']},{row['loc_id']:1,row['attr_label']:1,"_id":0})).to_dict()
+            data.append(data_dict.copy())
 
 
 
+        ## get geoJSON object for counties from database
+        counties=pd.DataFrame(list(db.geoJSON_county.find({},{"_id":0})))
+
+        counties=counties.to_dict('records')
+
+        features=[]
+        for i in range(0,len(counties)):
+            features.append(counties[i]['features'])
+
+        ## pull out just features from original geoJSON object
+        just_counties=pd.DataFrame(features)
 
 
+        ## create table with just Missouri counties
+        MO_counties=just_counties[just_counties.id.str.startswith('29')]
+        MO_counties=MO_counties.reset_index(drop=True)
 
 
+        ## pull out properties object from MO_counties table and create fips field to join data to properties table
+        properties=pd.json_normalize(MO_counties["properties"])
+        properties['fips']=(properties.STATE+properties.COUNTY).astype(int)
 
 
+        ## add data to properties tables per county
+        for i in range(0,len(data)):
+            properties=properties.merge(pd.DataFrame(data[i]),how='left',left_on=['fips'],right_on=[list(data[i].keys())[0]])
+            properties=properties.drop(columns=list(data[i].keys())[0])
+
+        ## create new properties table
+        properties=properties.reset_index(drop=True)
+        updated_attr=pd.DataFrame({"properties":properties.to_dict('records')})
+
+        #create final geoJSON object
+        geoJSON={"type":"FeatureCollection","features":back_together.to_dict('records')}
+
+        final=[geoJSON,metadata.to_dict('records')]
+
+        return jsonify(final)
 
 
 #########################################################################
