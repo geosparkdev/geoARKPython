@@ -22,35 +22,36 @@ from urllib.request import urlopen
 import plotly.express as px
 import ssl
 
-#MONGO_HOST = "128.206.117.150"
-#MONGO_USER = "haithcoatt"
-#MONGO_PASS = "Ke11ieJean"
 
-#server = SSHTunnelForwarder(
-#    MONGO_HOST,
-#    ssh_username=MONGO_USER,
-#    ssh_password=MONGO_PASS,
-#   remote_bind_address=('127.0.0.1', 27017)
-#)
+MONGO_HOST = "128.206.117.150"
+MONGO_USER = "haithcoatt"
+MONGO_PASS = "Ke11ieJean"
 
-#client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local port
+server = SSHTunnelForwarder(
+   MONGO_HOST,
+   ssh_username=MONGO_USER,
+   ssh_password=MONGO_PASS,
+  remote_bind_address=('127.0.0.1', 27017)
+)
+
+client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local port
 
 
 
 ## LOCAL TESTING
-MONGO_HOST = "192.168.1.202"
-MONGO_USER = "tiffyson"
-MONGO_PASS = "Hented123!"
+# MONGO_HOST = "192.168.1.202"
+# MONGO_USER = "tiffyson"
+# MONGO_PASS = "Hented123!"
 
-server = SSHTunnelForwarder(
-    MONGO_HOST,
-    ssh_username=MONGO_USER,
-    ssh_password=MONGO_PASS,
-    remote_bind_address=('127.0.0.1', 27017)
-)
+# server = SSHTunnelForwarder(
+#     MONGO_HOST,
+#     ssh_username=MONGO_USER,
+#     ssh_password=MONGO_PASS,
+#     remote_bind_address=('127.0.0.1', 27017)
+# )
 
-server.start()
-client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local por
+# server.start()
+# client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local por
 
 def create_app(test_config=None):
     app = flask.Flask(__name__)
@@ -260,8 +261,53 @@ def create_app(test_config=None):
 
 
 #########################################################################
-##########              U P L O A D     T O O L               ###########
+##########                    GEOARK DATA                     ###########
 #########################################################################
+
+########### GEOARK DATA DASHBOARD FUNCTIONS #########
+
+    @app.route('/geoarkdatahome', methods=['GET'])
+    def geoarkdatahome():
+ 
+        # server.start()
+
+    
+        db = client.metadata
+
+        originators = pd.DataFrame(list(db.originators.find()))
+        datasets= pd.DataFrame(list(db.metadata.find()))
+
+
+        sources_obj=originators[['originator_name','num_datasets']].to_dict('records')
+        num_sources=originators.originator_id.nunique()
+
+        # join datasets with source infomration
+        datasets=datasets.merge(originators, on='originator_id', how='left')
+
+        # count number of attributes per dataset
+        num_attributes=pd.DataFrame()
+
+        for index,row in datasets.iterrows():
+            num_attributes=num_attributes.append({'dataset_id':row.dataset_id,
+                                                'num_attributes':len(row.attributes)},ignore_index=True)
+
+        num_attributes['num_attributes']=num_attributes.num_attributes.astype(int)
+
+
+        # join datasets with attribute numbers
+        datasets=datasets.merge(num_attributes,on='dataset_id',how='left')
+
+        datasets_obj=datasets[['originator_name','dataset_name','num_attributes']].to_dict('records')
+        datasets_num=datasets.dataset_id.nunique()
+        total_attributes=int(datasets.num_attributes.sum())
+
+        final_object=[sources_obj,num_sources,datasets_obj,datasets_num,total_attributes]
+
+        return jsonify(final_object)
+
+
+
+############ UPLOAD TOOL FUNCTIONS ################
 
     @app.route('/getoriginator', methods=['GET'])
     def getOriginator():
@@ -490,6 +536,12 @@ def create_app(test_config=None):
 
         # server.stop()
         return jsonify("added")
+
+
+
+
+
+
 
 
     @app.route('/getFakeData', methods=['GET'])
