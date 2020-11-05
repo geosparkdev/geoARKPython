@@ -301,7 +301,18 @@ def create_app(test_config=None):
         datasets_num=datasets.dataset_id.nunique()
         total_attributes=int(datasets.num_attributes.sum())
 
-        final_object=[sources_obj,num_sources,datasets_obj,datasets_num,total_attributes]
+
+        #get all datasets that have been automatically updated and their status 
+        update_daily= pd.DataFrame(list(db.daily_runs.find()))
+        today=datetime.today().strftime("%Y-%m-%d")
+        update_daily['date_run']=update_daily.dt_run_end.dt.date
+        update_daily['date_run']=update_daily.date_run.astype(str)
+        update_daily=update_daily.merge(datasets[['dataset_id','dataset_name','originator_name']], on='dataset_id', how='left')
+        update_object=update_daily.loc[update_daily.date_run==today].sort_values('dt_run_end', ascending=False)[['originator_name','dt_run_end','date_run','status']]
+
+
+
+        final_object=[sources_obj,num_sources,datasets_obj,datasets_num,total_attributes,update_object]
 
         return jsonify(final_object)
 
