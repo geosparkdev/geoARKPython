@@ -391,7 +391,7 @@ def create_app(test_config=None):
     @app.route('/getcovidcasesdeaths', methods=['GET'])
     def getCovidcasesdeaths():
 
-        county_fips=29003
+        FIPS=29003
         db = client.metadata
         # pull metadata to get column names (in this case the dates-- covid deaths and covid cases will both have the same date range because they are updated on the same day)
         metadata=pd.DataFrame(db.metadata.find({'dataset_id':'4fd71eac_01_daily'}))
