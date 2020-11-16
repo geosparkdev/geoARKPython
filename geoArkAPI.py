@@ -321,6 +321,8 @@ def create_app(test_config=None):
 
 
     def colors(value):
+
+        palette= ['#2c7bb6','#8ec9d6','#ffe600','#e89438','#d7191c']
         if value <=1:
             return palette[0]
         elif value==2:
@@ -340,9 +342,6 @@ def create_app(test_config=None):
         ##### --------> COUNTY <----------- ######
     @app.route('/getsusdata', methods=['GET'])
     def getSusData():
-
-
-        palette= ['#2c7bb6','#8ec9d6','#ffe600','#e89438','#d7191c']
 
         db = client.covid_dash
 
@@ -379,6 +378,7 @@ def create_app(test_config=None):
         county_susc=county_susc.merge(Q5, on='susc_factors', how='left')
 
         county_susc=county_susc.merge(mean_max, on='susc_factors', how='left')
+        print(county_susc)
         
         county_susc['Q5_color'] = county_susc.apply (lambda row: colors(row.Q5), axis=1)
 
