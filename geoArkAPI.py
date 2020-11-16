@@ -430,6 +430,7 @@ def create_app(test_config=None):
 
         # make lists of each data for plots
         county_cases=list(county_covid_cases.county_cases)
+        county_cases = [str(x) for x in county_cases]
         
         county_deaths=list(county_covid_deaths.county_deaths)
         county_deaths = [str(x) for x in county_deaths]
@@ -485,8 +486,12 @@ def create_app(test_config=None):
 
         Q5_list= [x for x in Q5_list if '_Q5' in x]
 
+        sus_Q5['cnty_fips']=sus_Q5['cnty_fips'].astype(str)
+        sus_Q5['total']=sus_Q5['total'].astype(str)
+        
+
         sus_Q5["total"] = sus_Q5[Q5_list].sum(axis=1)
-        total=[sus_Q5.total.max()+1,sus_Q5[['cnty_fips','total']].to_dict('records')]
+        total=[str(sus_Q5.total.max()+1),sus_Q5[['cnty_fips','total']].to_dict('records')]
 
         return jsonify(total)
 
