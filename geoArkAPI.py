@@ -370,7 +370,7 @@ def create_app(test_config=None):
         county_susc=susceptibility.loc[susceptibility.cnty_fips==county_fips][susc_list].set_index(['cnty_fips','cnty_name','state_abbr']).stack().reset_index().rename(columns={'level_3':'susc_factors', 0:'susc_values'})
 
         ## grab quantiles data for county
-        Q5=susceptibility.loc[susceptibility.cnty_name==county_name][Q5_list].reset_index().transpose().iloc[1:].reset_index().rename(columns={'index':'susc_factors',0:'Q5'})
+        Q5=susceptibility.loc[susceptibility.cnty_fips==county_fips][Q5_list].reset_index().transpose().iloc[1:].reset_index().rename(columns={'index':'susc_factors',0:'Q5'})
         ## remove _Q5 in naming so that join can be made
         Q5['susc_factors']=Q5['susc_factors'].str.replace(r'\_Q5', '')
 
