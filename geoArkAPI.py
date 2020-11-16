@@ -345,10 +345,9 @@ def create_app(test_config=None):
 
         db = client.covid_dash
 
-        
 
 
-        county_fips=29003
+        county_fips=json.loads(request.data)
         susceptibility=pd.DataFrame(db.susceptibility.find())
 
         #Remove columns not used in bargraph
