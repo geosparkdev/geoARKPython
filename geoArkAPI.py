@@ -454,7 +454,7 @@ def create_app(test_config=None):
     @app.route('/getMOgeoJSON', methods=['GET'])
     def getMOgeoJSON():
         db = client.covid_dash
-        MO_geojson=pd.DataFrame(db.MO_geojson_county.find({},{'_id'}))
+        MO_geojson=pd.DataFrame(db.MO_geojson_county.find({},{'_id':0}))
 
         MO_temp=pd.DataFrame(list(MO_geojson.features))
 
