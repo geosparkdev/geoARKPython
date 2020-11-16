@@ -473,6 +473,26 @@ def create_app(test_config=None):
         return jsonify(geoJSON)
 
 
+    @app.route('/gettotSus', methods=['GET'])
+    def gettotSus():
+        db = client.covid_dash
+        susceptibility=pd.DataFrame(db.susceptibility.find())
+        Q5_list= [x for x in susceptibility if '_Q5' in x]
+
+        Q5_list.append('cnty_fips')
+
+        sus_Q5=susceptibility[Q5_list]
+
+        Q5_list= [x for x in Q5_list if '_Q5' in x]
+
+        sus_Q5["total"] = sus_Q5[Q5_list].sum(axis=1)
+        total=[sus_Q5.total.max()+1,sus_Q5[['cnty_fips','total']].to_dict('records')]
+
+        return jsonify(total)
+
+
+
+
 
 #########################################################################
 ##########                    GEOARK DATA                     ###########
