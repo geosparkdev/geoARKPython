@@ -385,7 +385,7 @@ def create_app(test_config=None):
 
         final=county_susc.sort_values('Q5', ascending=False).to_dict('records')
  
-        return jsonify(final)
+        return final
 
 
 
