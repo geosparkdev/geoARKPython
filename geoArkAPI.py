@@ -320,6 +320,17 @@ def create_app(test_config=None):
 
 
 
+    def colors(value):
+        if value <=1:
+            return palette[0]
+        elif value==2:
+            return palette[1]
+        elif value==3:
+            return palette[2]
+        elif value==4:
+            return palette[3]
+        else:
+            return palette[4]
 
 
 
@@ -330,18 +341,6 @@ def create_app(test_config=None):
     @app.route('/getsusdata', methods=['GET'])
     def getSusData():
 
-
-        def colors(value):
-            if value <=1:
-                return palette[0]
-            elif value==2:
-                return palette[1]
-            elif value==3:
-                return palette[2]
-            elif value==4:
-                return palette[3]
-            else:
-                return palette[4]
 
         palette= ['#2c7bb6','#8ec9d6','#ffe600','#e89438','#d7191c']
 
