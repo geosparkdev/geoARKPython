@@ -318,6 +318,77 @@ def create_app(test_config=None):
 
         return jsonify(final)
 
+
+
+
+
+
+
+
+
+        ##### --------> COUNTY <----------- ######
+    @app.route('/getsusdata', methods=['GET'])
+    def getSusData():
+
+
+        def colors(value):
+            if value <=1:
+                return palette[0]
+            elif value==2:
+                return palette[1]
+            elif value==3:
+                return palette[2]
+            elif value==4:
+                return palette[3]
+            else:
+                return palette[4]
+
+        palette= ['#2c7bb6','#8ec9d6','#ffe600','#e89438','#d7191c']
+
+        db = client.covid_dash
+
+        
+
+
+        county_name=json.loads(request.data)
+        susceptibility=pd.DataFrame(db.susceptibility.find())
+
+        #Remove columns not used in bargraph
+        susceptibility=susceptibility.drop(columns={'_id','TPops2701','Age65plus','Age75plus','Comorb_Tot'})
+
+        ## get quantiles and susceptibility factor columns
+        Q5_list= [x for x in susceptibility if '_Q5' in x]
+        susc_list=[x for x in susceptibility if '_Q5' not in x]
+
+
+        ##get mean and max for each susceiptibility factor for Missouri
+        mean_max=pd.DataFrame(susceptibility[susc_list].agg(['mean','max','min']))
+        mean_max=mean_max.transpose().reset_index().rename(columns={'index':'susc_factors'})
+        mean_max=mean_max.iloc[3:]
+        mean_max.loc[mean_max['min'] >=0, 'min_2'] = 0  
+        mean_max.loc[mean_max['min'] <0, 'min_2'] = mean_max['min'] 
+
+        ## grab county specific susceptibility factors
+        county_susc=susceptibility.loc[susceptibility.cnty_name==county_name][susc_list].set_index(['cnty_fips','cnty_name','state_abbr']).stack().reset_index().rename(columns={'level_3':'susc_factors', 0:'susc_values'})
+
+        ## grab quantiles data for county
+        Q5=susceptibility.loc[susceptibility.cnty_name==county_name][Q5_list].reset_index().transpose().iloc[1:].reset_index().rename(columns={'index':'susc_factors',0:'Q5'})
+        ## remove _Q5 in naming so that join can be made
+        Q5['susc_factors']=Q5['susc_factors'].str.replace(r'\_Q5', '')
+
+        #join all data together
+        county_susc=county_susc.merge(Q5, on='susc_factors', how='left')
+
+        county_susc=county_susc.merge(mean_max, on='susc_factors', how='left')
+        
+        county_susc['Q5_color'] = county_susc.apply (lambda row: colors(row.Q5), axis=1)
+
+        final=county_susc.sort_values('Q5', ascending=False).to_dict('records')
+ 
+        return jsonify(final)
+
+
+
 #########################################################################
 ##########                    GEOARK DATA                     ###########
 #########################################################################
