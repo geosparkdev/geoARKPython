@@ -340,7 +340,7 @@ def create_app(test_config=None):
 
 
         ##### --------> COUNTY <----------- ######
-    @app.route('/getsusdata', methods=['GET'])
+    @app.route('/getsusdata', methods=['POST'])
     def getSusData():
 
         db = client.covid_dash
