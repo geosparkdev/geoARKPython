@@ -451,6 +451,28 @@ def create_app(test_config=None):
         return jsonify(together)
 
 
+    @app.route('/getMOgeoJSON', methods=['GET'])
+    def getMOgeoJSON():
+        db = client.covid_dash
+        MO_geojson=pd.DataFrame(db.MO_geojson_county.find({},{'_id'}))
+
+        MO_temp=pd.DataFrame(list(MO_geojson.features))
+
+        properties=pd.json_normalize(MO_temp["properties"])
+        properties['fips']=(properties.STATE+properties.COUNTY).astype(int)
+
+        updated_attr=pd.DataFrame({"properties":properties.to_dict('records')})
+
+
+        MO_temp=MO_temp.drop(columns='properties')
+        back_together=pd.concat([updated_attr,MO_temp],axis=1,sort=False)
+
+        #create final geoJSON object
+        geoJSON={"type":"FeatureCollection","features":back_together.to_dict('records')}
+        
+        return jsonify(geoJSON)
+
+
 
 #########################################################################
 ##########                    GEOARK DATA                     ###########
