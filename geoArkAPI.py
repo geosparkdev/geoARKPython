@@ -268,6 +268,8 @@ def create_app(test_config=None):
         db = client.covid_results
         data = pd.DataFrame(list(db.prediction.find()))  
         requestData=json.loads(request.data)
+        print(requestData)
+        print(type(requestData))
 
         extract=data.loc[(data.Mobility==requestData[0]) & (data.Category==requestData[1])]
         legend=data.transpose().reset_index().rename(columns={'index':'keys'}).iloc[4:][['keys']]
