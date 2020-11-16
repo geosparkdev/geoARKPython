@@ -426,20 +426,29 @@ def create_app(test_config=None):
         # calculate sum of all covid deaths for missouri per day
         covid_deaths=covid_deaths.sum().reset_index().loc[5:].rename(columns={'index':'attr_label',0:'deaths'})
 
-
+        #test
 
         # make lists of each data for plots
         county_cases=list(county_covid_cases.county_cases)
         
         county_deaths=list(county_covid_deaths.county_deaths)
+        county_deaths = [str(x) for x in county_deaths]
+
         all_cases=list(covid_cases.cases)
+        all_cases = [str(x) for x in all_cases]
+
+        
         all_deaths=list(covid_deaths.deaths)
+        all_deaths = [str(x) for x in all_deaths]
+
         dates=list(covid_cases.attr_orig)
+        dates = [str(x) for x in dates]
 
         # put lists together to send to front
+        
         together=[dates,county_cases,county_deaths,all_cases,all_deaths]
 
-        return json.dumps(together)
+        return jsonify(together)
 
 
 
