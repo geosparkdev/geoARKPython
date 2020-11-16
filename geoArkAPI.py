@@ -388,6 +388,60 @@ def create_app(test_config=None):
 
 
 
+    @app.route('/getcovidcasesdeaths', methods=['GET'])
+    def getCovidcasesdeaths():
+
+        county_fips=29003
+        db = client.metadata
+        # pull metadata to get column names (in this case the dates-- covid deaths and covid cases will both have the same date range because they are updated on the same day)
+        metadata=pd.DataFrame(db.metadata.find({'dataset_id':'4fd71eac_01_daily'}))
+        # get attributes look-up table from metadata table
+        attributes=pd.json_normalize(metadata["attributes"][0])
+
+        # get covid cases for Missouri
+        covid_cases=pd.DataFrame(list(db.bigdata.find({"dataset_id":"4fd71eac_01_daily","4fd71eac_01_daily_03":"MO"},{"_id":0})))
+        covid_cases=covid_cases.loc[covid_cases['4fd71eac_01_daily_02']!='Statewide Unallocated']
+
+        # get covid cases for specified county
+        county_covid_cases=covid_cases.loc[covid_cases['4fd71eac_01_daily_01']==FIPS]
+        county_covid_cases=county_covid_cases.reset_index().transpose().reset_index().loc[6:].rename(columns={0:'county_cases'})
+
+        # calculate sum of all covid cases for missouri per day
+        covid_cases=covid_cases.sum().reset_index().loc[5:].rename(columns={'index':'attr_label',0:'cases'})
+        covid_cases=covid_cases.merge(attributes[['attr_label','attr_orig']], on='attr_label', how='left')
+
+        # put date data into datetime format
+        covid_cases['attr_orig']=pd.to_datetime(covid_cases.attr_orig)
+        covid_cases['attr_orig']=covid_cases['attr_orig'].astype('string')
+
+
+        # get covid deaths for Missouri
+        covid_deaths=pd.DataFrame(list(db.bigdata.find({"dataset_id":"4fd71eac_02_daily","4fd71eac_02_daily_03":"MO"},{"_id":0})))
+        covid_deaths=covid_deaths.loc[covid_deaths['4fd71eac_02_daily_02']!='Statewide Unallocated']
+
+        # get covid deaths for specified county
+        county_covid_deaths=covid_deaths.loc[covid_deaths['4fd71eac_02_daily_01']==FIPS]
+        county_covid_deaths=county_covid_deaths.reset_index().transpose().reset_index().loc[6:].rename(columns={0:'county_deaths'})
+
+        # calculate sum of all covid deaths for missouri per day
+        covid_deaths=covid_deaths.sum().reset_index().loc[5:].rename(columns={'index':'attr_label',0:'deaths'})
+
+
+
+        # make lists of each data for plots
+        county_cases=list(county_covid_cases.county_cases)
+        county_deaths=list(county_covid_deaths.county_deaths)
+        all_cases=list(covid_cases.cases)
+        all_deaths=list(covid_deaths.deaths)
+        dates=list(covid_cases.attr_orig)
+
+        # put lists together to send to front
+        together=[dates,county_cases,county_deaths,all_cases,all_deaths]
+
+        return jsonify(together)
+
+
+
 #########################################################################
 ##########                    GEOARK DATA                     ###########
 #########################################################################
