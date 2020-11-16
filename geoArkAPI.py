@@ -430,6 +430,7 @@ def create_app(test_config=None):
 
         # make lists of each data for plots
         county_cases=list(county_covid_cases.county_cases)
+        
         county_deaths=list(county_covid_deaths.county_deaths)
         all_cases=list(covid_cases.cases)
         all_deaths=list(covid_deaths.deaths)
@@ -438,7 +439,7 @@ def create_app(test_config=None):
         # put lists together to send to front
         together=[dates,county_cases,county_deaths,all_cases,all_deaths]
 
-        return jsonify(together)
+        return json.dumps(together)
 
 
 
