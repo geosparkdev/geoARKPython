@@ -267,7 +267,7 @@ def create_app(test_config=None):
 
         db = client.covid_results
         data = pd.DataFrame(list(db.prediction.find()))  
-        requestData=29003
+        requestData=json.loads(request.data)
 
         extract=data.loc[(data.Mobility==requestData[0]) & (data.Category==requestData[1])]
         legend=data.transpose().reset_index().rename(columns={'index':'keys'}).iloc[4:][['keys']]
@@ -350,7 +350,7 @@ def create_app(test_config=None):
         
 
 
-        county_name=json.loads(request.data)
+        county_name=29003
         susceptibility=pd.DataFrame(db.susceptibility.find())
 
         #Remove columns not used in bargraph
@@ -385,7 +385,7 @@ def create_app(test_config=None):
 
         final=county_susc.sort_values('Q5', ascending=False).to_dict('records')
  
-        return final
+        return jsonify(final)
 
 
 
