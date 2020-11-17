@@ -403,21 +403,14 @@ def create_app(test_config=None):
         attributes_deaths=pd.json_normalize(metadata_deaths["attributes"][0])
 
         # get data and grab original label (dates)
-        covid_cases = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_01_daily','4fd71eac_01_daily_03':'MO'},{'_id':0})))
+        # get data and grab original label (dates)
+        MO_cases = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_01_daily','4fd71eac_01_daily_03':'MO'},{'_id':0})))
         columns = ['dataset_id'] + attributes_cases['attr_orig'].to_list()
-        covid_cases.columns = columns
+        MO_cases.columns = columns
 
-        covid_deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily','4fd71eac_02_daily_03':'MO'},{'_id':0})))
+        MO_deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily','4fd71eac_02_daily_03':'MO'},{'_id':0})))
         columns = ['dataset_id'] + attributes_deaths['attr_orig'].to_list()
-        covid_deaths.columns = columns
-
-
-
-
-        #get covid cases and deaths for Missouri
-        MO_cases=covid_cases.loc[(covid_cases.State=='MO') & (covid_cases.countyFIPS!=0)]
-
-        MO_deaths=covid_deaths.loc[(covid_deaths.State=='MO') & (covid_deaths.countyFIPS!=0)]
+        MO_deaths.columns = columns
 
 
         # calculate new cases and deaths per day
