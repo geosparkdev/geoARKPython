@@ -404,7 +404,7 @@ def create_app(test_config=None):
         together=[str(total_population),str("{:.1f}".format(total_65*100))+"%",str(total_cases),str(total_deaths)]
         together
 
-        
+
 
     @app.route('/getcovidcasesdeaths', methods=['POST'])
     def getCovidcasesdeaths():
