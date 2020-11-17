@@ -401,8 +401,10 @@ def create_app(test_config=None):
         total_cases=cases.iloc[:,-1:].values[0][0]
         total_deaths=deaths.iloc[:,-1:].values[0][0]
 
-        together=[str(total_population),str(total_65*100)+"%",str(total_cases),str(total_deaths)]
-        return jsonify(together)
+        together=[str(total_population),str("{:.1f}".format(total_65*100))+"%",str(total_cases),str(total_deaths)]
+        together
+
+        
 
     @app.route('/getcovidcasesdeaths', methods=['POST'])
     def getCovidcasesdeaths():
