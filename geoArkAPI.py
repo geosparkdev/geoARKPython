@@ -387,66 +387,98 @@ def create_app(test_config=None):
 
 
 
-    @app.route('/getcovidcasesdeaths', methods=['GET'])
+    @app.route('/getcovidcasesdeaths', methods=['POST'])
     def getCovidcasesdeaths():
 
-        FIPS=29003
+        FIPS=json.loads(request.data)
+
+
         db = client.metadata
-        # pull metadata to get column names (in this case the dates-- covid deaths and covid cases will both have the same date range because they are updated on the same day)
-        metadata=pd.DataFrame(db.metadata.find({'dataset_id':'4fd71eac_01_daily'}))
+        metadata_cases=pd.DataFrame(db.metadata.find({'dataset_id':'4fd71eac_01_daily'}))
+        metadata_deaths=pd.DataFrame(db.metadata.find({'dataset_id':'4fd71eac_02_daily'}))
+
+
         # get attributes look-up table from metadata table
-        attributes=pd.json_normalize(metadata["attributes"][0])
+        attributes_cases=pd.json_normalize(metadata_cases["attributes"][0])
+        attributes_deaths=pd.json_normalize(metadata_deaths["attributes"][0])
 
-        # get covid cases for Missouri
-        covid_cases=pd.DataFrame(list(db.bigdata.find({"dataset_id":"4fd71eac_01_daily","4fd71eac_01_daily_03":"MO"},{"_id":0})))
-        covid_cases=covid_cases.loc[covid_cases['4fd71eac_01_daily_02']!='Statewide Unallocated']
+        # get data and grab original label (dates)
+        covid_cases = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_01_daily'},{'_id':0})))
+        columns = ['dataset_id'] + attributes_cases['attr_orig'].to_list()
+        covid_cases.columns = columns
 
-        # get covid cases for specified county
-        county_covid_cases=covid_cases.loc[covid_cases['4fd71eac_01_daily_01']==FIPS]
-        county_covid_cases=county_covid_cases.reset_index().transpose().reset_index().loc[6:].rename(columns={0:'county_cases'})
-
-        # calculate sum of all covid cases for missouri per day
-        covid_cases=covid_cases.sum().reset_index().loc[5:].rename(columns={'index':'attr_label',0:'cases'})
-        covid_cases=covid_cases.merge(attributes[['attr_label','attr_orig']], on='attr_label', how='left')
-
-        # put date data into datetime format
-        covid_cases['attr_orig']=pd.to_datetime(covid_cases.attr_orig)
-        covid_cases['attr_orig']=covid_cases['attr_orig'].astype('string')
+        covid_deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily'},{'_id':0})))
+        columns = ['dataset_id'] + attributes_deaths['attr_orig'].to_list()
+        covid_deaths.columns = columns
 
 
-        # get covid deaths for Missouri
-        covid_deaths=pd.DataFrame(list(db.bigdata.find({"dataset_id":"4fd71eac_02_daily","4fd71eac_02_daily_03":"MO"},{"_id":0})))
-        covid_deaths=covid_deaths.loc[covid_deaths['4fd71eac_02_daily_02']!='Statewide Unallocated']
 
-        # get covid deaths for specified county
-        county_covid_deaths=covid_deaths.loc[covid_deaths['4fd71eac_02_daily_01']==FIPS]
-        county_covid_deaths=county_covid_deaths.reset_index().transpose().reset_index().loc[6:].rename(columns={0:'county_deaths'})
 
-        # calculate sum of all covid deaths for missouri per day
-        covid_deaths=covid_deaths.sum().reset_index().loc[5:].rename(columns={'index':'attr_label',0:'deaths'})
+        #get covid cases and deaths for Missouri
+        MO_cases=covid_cases.loc[(covid_cases.State=='MO') & (covid_cases.countyFIPS!=0)]
 
-        #test
+        MO_deaths=covid_deaths.loc[(covid_deaths.State=='MO') & (covid_deaths.countyFIPS!=0)]
 
-        # make lists of each data for plots
-        county_cases=list(county_covid_cases.county_cases)
-        county_cases = [str(x) for x in county_cases]
-        
-        county_deaths=list(county_covid_deaths.county_deaths)
-        county_deaths = [str(x) for x in county_deaths]
 
-        all_cases=list(covid_cases.cases)
-        all_cases = [str(x) for x in all_cases]
+        # calculate new cases and deaths per day
+        MO_dailycases = MO_cases.iloc[:, 5:].diff(axis=1)
+        MO_dailycases = MO_cases[['countyFIPS','County Name','State']].join(MO_dailycases)
 
-        
-        all_deaths=list(covid_deaths.deaths)
-        all_deaths = [str(x) for x in all_deaths]
 
-        dates=list(covid_cases.attr_orig)
-        dates = [str(x) for x in dates]
+        MO_dailydeaths = MO_deaths.iloc[:, 5:].diff(axis=1)
+        MO_dailydeaths = MO_deaths[['countyFIPS','County Name','State']].join(MO_dailydeaths)
 
-        # put lists together to send to front
-        
-        together=[dates,county_cases,county_deaths,all_cases,all_deaths]
+
+        # get total daily cases and deaths for Missouri
+        dailycases_total=MO_dailycases.sum().reset_index().loc[3:].rename(columns={'index':'date',0:'cases'})
+
+        dailydeaths_total=MO_dailydeaths.sum().reset_index().loc[3:].rename(columns={'index':'date',0:'deaths'})
+
+
+
+
+        # resample data and get weekly total cases and deaths for Missouri
+        dailycases_total['date']=pd.to_datetime(dailycases_total.date)
+        dailycases_total=dailycases_total.set_index('date')
+        weeklycases_total=dailycases_total.cases.loc[dailycases_total.index >='2020-03-08'].resample('W-Mon').sum()
+        weeklycases_total=weeklycases_total.reset_index()
+
+
+        dailydeaths_total['date']=pd.to_datetime(dailydeaths_total.date)
+        dailydeaths_total=dailydeaths_total.set_index('date')
+        weeklydeaths_total=dailydeaths_total.deaths.loc[dailydeaths_total.index >='2020-03-08'].resample('W-Mon').sum()
+        weeklydeaths_total=weeklydeaths_total.reset_index()
+
+
+
+        # resample data and get weekly total cases and deaths for specific county
+        county_dailycases=MO_dailycases.loc[MO_dailycases.countyFIPS==FIPS].reset_index()
+        county_dailycases=county_dailycases.transpose().reset_index().loc[5:].rename(columns={'index':'date',0:'cases'})
+        county_dailycases['date']=pd.to_datetime(county_dailycases.date)
+        county_dailycases=county_dailycases.set_index('date')
+
+        county_dailydeaths=MO_dailydeaths.loc[MO_dailydeaths.countyFIPS==FIPS].reset_index()
+        county_dailydeaths=county_dailydeaths.transpose().reset_index().loc[5:].rename(columns={'index':'date',0:'deaths'})
+        county_dailydeaths['date']=pd.to_datetime(county_dailydeaths.date)
+        county_dailydeaths=county_dailydeaths.set_index('date')
+
+
+
+        weeklycases_county=county_dailycases.cases.loc[county_dailycases.index >='2020-03-08'].resample('W-Mon').sum()
+        weeklycases_county=weeklycases_county.reset_index()
+
+        weeklydeaths_county=county_dailydeaths.deaths.loc[county_dailydeaths.index >='2020-03-08'].resample('W-Mon').sum()
+        weeklydeaths_county=weeklydeaths_county.reset_index()
+
+        #create lists
+        wk_dates=weeklycases_total.date.astype(str).to_list()
+        wk_county_cases=weeklycases_county.cases.astype(str).to_list()
+        wk_county_deaths=weeklydeaths_county.deaths.astype(str).to_list()
+        wk_MO_cases=weeklycases_total.cases.astype(str).to_list()
+        wk_MO_deaths=weeklydeaths_total.deaths.astype(str).to_list()
+
+        # put list together to send to front end
+        together=[wk_dates,wk_county_cases,wk_county_deaths,wk_MO_cases,wk_MO_deaths]
 
         return jsonify(together)
 
