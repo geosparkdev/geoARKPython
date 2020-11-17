@@ -385,7 +385,24 @@ def create_app(test_config=None):
  
         return jsonify(final)
 
+    @app.route('/getquickstats', methods=['POST'])
+    def getquickstats():
+        FIPS=json.loads(request.data)
+        
+        db = client.metadata
+        cases = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_01_daily','4fd71eac_01_daily_01':FIPS},{'_id':0})))
+        deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily','4fd71eac_02_daily_01':FIPS},{'_id':0})))
 
+        db = client.covid_dash
+        susceptibility=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"Age65P_Nor":1,"TPops2701":1}))
+        total_population=susceptibility.TPops2701[0]
+        total_65=susceptibility.Age65P_Nor[0]
+
+        total_cases=cases.iloc[:,-1:].values[0][0]
+        total_deaths=deaths.iloc[:,-1:].values[0][0]
+
+        together=[str(total_population),str(total_65*100)+"%",str(total_cases),str(total_deaths)]
+        return jsonify(together)
 
     @app.route('/getcovidcasesdeaths', methods=['POST'])
     def getCovidcasesdeaths():
