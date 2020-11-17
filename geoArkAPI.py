@@ -403,11 +403,11 @@ def create_app(test_config=None):
         attributes_deaths=pd.json_normalize(metadata_deaths["attributes"][0])
 
         # get data and grab original label (dates)
-        covid_cases = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_01_daily'},{'_id':0})))
+        covid_cases = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_01_daily','4fd71eac_01_daily_03':'MO'},{'_id':0})))
         columns = ['dataset_id'] + attributes_cases['attr_orig'].to_list()
         covid_cases.columns = columns
 
-        covid_deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily'},{'_id':0})))
+        covid_deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily','4fd71eac_02_daily_03':'MO'},{'_id':0})))
         columns = ['dataset_id'] + attributes_deaths['attr_orig'].to_list()
         covid_deaths.columns = columns
 
