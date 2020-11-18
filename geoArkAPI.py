@@ -548,7 +548,7 @@ def create_app(test_config=None):
 
     @app.route('/getPredictions', methods=['GET'])
     def getPredictions():
-       db = client.covid_results
+        db = client.covid_results
         data = pd.DataFrame(list(db.prediction.find()))
         data=data.drop(columns={'_id'})
 
