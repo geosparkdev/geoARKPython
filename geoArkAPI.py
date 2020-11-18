@@ -484,10 +484,15 @@ def create_app(test_config=None):
 
         #create lists
         wk_dates=weeklycases_total.date.astype(str).to_list()
+        wk_dates.pop()
         wk_county_cases=weeklycases_county.cases.astype(str).to_list()
+        wk_county_cases.pop()
         wk_county_deaths=weeklydeaths_county.deaths.astype(str).to_list()
+        wk_county_deaths.pop()
         wk_MO_cases=weeklycases_total.cases.astype(str).to_list()
+        wk_MO_cases.pop()
         wk_MO_deaths=weeklydeaths_total.deaths.astype(str).to_list()
+        wk_MO_deaths.pop()
 
         # put list together to send to front end
         together=[wk_dates,wk_county_cases,wk_county_deaths,wk_MO_cases,wk_MO_deaths]
