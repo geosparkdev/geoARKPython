@@ -556,17 +556,17 @@ def create_app(test_config=None):
         dates=data.columns[3:]
         metadata=[]
 
-        #get max values of all categories
+      #get max values of all categories
         for x in (['yes','no']):
             for i in data.Category.unique():
                 max_val=data.loc[(data.Mobility==x) & (data.Category==i)][dates].max().max()
-                metadata.append({"mobility":x,'category':i,"max":max_val})
+                metadata.append({"mobility":x,'category':i,"max":str(max_val)})
 
         #create list of dates
         dates=dates.to_list()
 
         #create fip objects
-        fips_data=data.to_dict('record')
+        fips_data=data.astype(str).to_dict('record')
 
         together=[metadata,dates,fips_data]
                 
