@@ -526,7 +526,7 @@ def create_app(test_config=None):
     def factorsMapData():
         db = client.covid_dash
         susceptibility=pd.DataFrame(db.susceptibility.find({},{"_id":0}))
-
+        susceptibility=susceptibility.astype('str')
 
         Q5_list= [x for x in susceptibility if '_Q5' in x]
         Q5_list.append('cnty_fips')
@@ -538,7 +538,7 @@ def create_app(test_config=None):
         factors_list= [x for x in susceptibility if '_Q5' not in x]
         factors=susceptibility[factors_list]
         factors=factors.merge(sus_Q5[['cnty_fips','total']], on='cnty_fips', how='left')
-        together=[json.dumps(factors.to_dict('record')),json.dumps(factors.max().reset_index(name='max').rename(columns={"index":"factor"}).iloc[3:].to_dict('record'))]
+        together=[factors.to_dict('record'),factors.max().reset_index(name='max').rename(columns={"index":"factor"}).iloc[3:].to_dict('record')]
         return jsonify(together)
 
 
