@@ -538,7 +538,8 @@ def create_app(test_config=None):
         factors_list= [x for x in susceptibility if '_Q5' not in x]
         factors=susceptibility[factors_list]
         factors=factors.merge(sus_Q5[['cnty_fips','total']], on='cnty_fips', how='left')
-        return jsonify(factors.to_dict('record'))
+        together=[factors.to_dict('record'),factors.max().reset_index(name='max').rename(columns={"index":"factor"}).iloc[3:].to_dict('record')]
+        return jsonify(together)
 
 
 
