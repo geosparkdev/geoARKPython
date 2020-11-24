@@ -394,9 +394,10 @@ def create_app(test_config=None):
     def getRiskFactorsData():
 
         variables=json.loads(request.data)
+     
 
-        risk_factor=variables[1]
-        county_fips=variables[0]
+        risk_factor=variables.factor
+        county_fips=variables.covid_fips
 
         #Get risk factors data for user selected risk factor
         db = client.covid_dash
