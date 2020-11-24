@@ -394,6 +394,8 @@ def create_app(test_config=None):
     def getRiskFactorsData():
 
         variables=json.loads(request.data)
+        print('TESTSETSETSETSETSETSE (*)@(#*@)(#* ()*')
+        print(variables)
      
 
         risk_factor=variables.factor
