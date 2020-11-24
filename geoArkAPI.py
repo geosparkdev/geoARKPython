@@ -434,6 +434,7 @@ def create_app(test_config=None):
 
         # get color of bar graph based on quantiles
         county_factors['Q5_color'] = county_factors.apply (lambda row: colors(row.Q5), axis=1)
+        county_factors=county_factors.astype(str)
 
         final=county_factors.sort_values('Q5', ascending=False).to_dict('records')
  
