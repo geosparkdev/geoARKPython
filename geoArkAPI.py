@@ -385,6 +385,62 @@ def create_app(test_config=None):
  
         return jsonify(final)
 
+
+
+
+
+
+    @app.route('/getriskfactordata', methods=['POST'])
+    def getRiskFactorsData():
+
+        variables=json.loads(request.data)
+
+        risk_factor=variables[1]
+        county_name=variables[0]
+
+        #Get risk factors data for user selected risk factor
+        db = client.covid_dash
+        risk_factors=pd.DataFrame(db[risk_factor].find({},{'_id':0}))
+
+
+        # pull out columns to displays-- columns with Quantiles 
+        Q5_list= [x for x in risk_factors if '_Q5' in x]
+        factors_list = [word.replace('_Q5','') for word in Q5_list]
+
+        # find min, max, and mean of risk factors
+        mean_max=pd.DataFrame(risk_factors[factors_list].agg(['mean','max','min']))
+        mean_max=mean_max.transpose().reset_index().rename(columns={'index':'factors'})
+        mean_max.loc[mean_max['min'] >=0, 'min_2'] = 0  
+        mean_max.loc[mean_max['min'] <0, 'min_2'] = mean_max['min'] 
+
+        # attach columns necessary for identification
+        factors_list.append('cnty_fips')
+        factors_list.append('cnty_name')
+        factors_list.append('state_abbr')
+
+
+        # grab county specific risk factor, facotrs
+        county_factors=risk_factors.loc[risk_factors.cnty_fips==fips][factors_list].set_index(['cnty_fips','cnty_name','state_abbr']).stack().reset_index().rename(columns={'level_3':'factors', 0:'factors_values'})
+
+        # grab quantiles data for county
+        Q5=risk_factors.loc[risk_factors.cnty_name==county_name][Q5_list].reset_index().transpose().iloc[1:].reset_index().rename(columns={'index':'factors',0:'Q5'})
+        # remove _Q5 in naming so that join can be made
+        Q5['factors']=Q5['factors'].str.replace(r'\_Q5', '')
+
+        #join all data together
+        county_factors=county_factors.merge(Q5, on='factors', how='left')
+
+        county_factors=county_factors.merge(mean_max, on='factors', how='left')
+
+        # get color of bar graph based on quantiles
+        county_factors['Q5_color'] = county_factors.apply (lambda row: colors(row.Q5), axis=1)
+
+        final=county_factors.sort_values('Q5', ascending=False).to_dict('records')
+ 
+        return jsonify(final)
+
+
+
     @app.route('/getquickstats', methods=['POST'])
     def getquickstats():
         FIPS=json.loads(request.data)
