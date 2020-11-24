@@ -396,7 +396,7 @@ def create_app(test_config=None):
         variables=json.loads(request.data)
 
         risk_factor=variables[1]
-        county_name=variables[0]
+        county_fips=variables[0]
 
         #Get risk factors data for user selected risk factor
         db = client.covid_dash
@@ -420,10 +420,10 @@ def create_app(test_config=None):
 
 
         # grab county specific risk factor, facotrs
-        county_factors=risk_factors.loc[risk_factors.cnty_fips==fips][factors_list].set_index(['cnty_fips','cnty_name','state_abbr']).stack().reset_index().rename(columns={'level_3':'factors', 0:'factors_values'})
+        county_factors=risk_factors.loc[risk_factors.cnty_fips==county_fips][factors_list].set_index(['cnty_fips','cnty_name','state_abbr']).stack().reset_index().rename(columns={'level_3':'factors', 0:'factors_values'})
 
         # grab quantiles data for county
-        Q5=risk_factors.loc[risk_factors.cnty_name==county_name][Q5_list].reset_index().transpose().iloc[1:].reset_index().rename(columns={'index':'factors',0:'Q5'})
+        Q5=risk_factors.loc[risk_factors.cnty_fips==county_fips][Q5_list].reset_index().transpose().iloc[1:].reset_index().rename(columns={'index':'factors',0:'Q5'})
         # remove _Q5 in naming so that join can be made
         Q5['factors']=Q5['factors'].str.replace(r'\_Q5', '')
 
