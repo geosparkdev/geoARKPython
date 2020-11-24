@@ -398,8 +398,8 @@ def create_app(test_config=None):
         print(variables)
      
 
-        risk_factor=variables.factor
-        county_fips=variables.fips
+        risk_factor=variables[1]
+        county_fips=variables[0]
 
         print(county_fips)
 
