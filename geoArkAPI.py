@@ -394,9 +394,6 @@ def create_app(test_config=None):
     def getRiskFactorsData():
 
         variables=json.loads(request.data)
-        print('TESTSETSETSETSETSETSE (*)@(#*@)(#* ()*')
-        print(variables)
-     
 
         risk_factor=variables[1]
         county_fips=variables[0]
@@ -584,25 +581,34 @@ def create_app(test_config=None):
         return jsonify(geoJSON)
 
 
-    @app.route('/factorsMapData', methods=['GET'])
+    @app.route('/factorsMapData', methods=['POST'])
     def factorsMapData():
+
+        risk_factor=json.loads(request.data)
+        #Get risk factors data for user selected risk factor
         db = client.covid_dash
-        susceptibility=pd.DataFrame(db.susceptibility.find({},{"_id":0}))
+        risk_factors=pd.DataFrame(db[risk_factor].find({},{'_id':0}))
 
-        Q5_list= [x for x in susceptibility if '_Q5' in x]
+
+        # pull out columns to displays-- columns with Quantiles 
+        Q5_list= [x for x in risk_factors if '_Q5' in x]
         Q5_list.append('cnty_fips')
-        sus_Q5=susceptibility[Q5_list]
+
+        factors_list = [word.replace('_Q5','') for word in Q5_list]
+
+        # calculate total risk factor
+        riskQ5=risk_factors[Q5_list]
         Q5_list= [x for x in Q5_list if '_Q5' in x]
-        sus_Q5["total"] = sus_Q5[Q5_list].sum(axis=1)
+        riskQ5["total"] = riskQ5[Q5_list].sum(axis=1)
 
-
-        factors_list= [x for x in susceptibility if '_Q5' not in x]
-        factors=susceptibility[factors_list]
-        factors=factors.merge(sus_Q5[['cnty_fips','total']], on='cnty_fips', how='left')
+        # merge risk factors with total
+        factors=risk_factors[factors_list]
+        factors=factors.merge(riskQ5[['cnty_fips','total']], on='cnty_fips', how='left')
 
         factors=factors.astype(str)
         together=[factors.to_dict('record'),factors.agg({'max','min'}).transpose().reset_index().rename(columns={'index':'factor'}).iloc[3:].to_dict('record')]
-        return jsonify(together)
+
+
 
 
 
