@@ -403,6 +403,8 @@ def create_app(test_config=None):
 
         print(county_fips)
         print(risk_factor)
+        print(type(county_fips))
+        print(type(risk_factor))
 
         #Get risk factors data for user selected risk factor
         db = client.covid_dash
