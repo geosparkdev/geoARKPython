@@ -613,6 +613,9 @@ def create_app(test_config=None):
     @app.route('/getwindrose', methods=['POST'])
     def getwindrose():
         FIPS=json.loads(request.data)
+        print(FIPS)
+        print(type(FIPS))
+        print('IN WIND ROSE')
         
         db = client.covid_results
         sus_tot=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
