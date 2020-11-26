@@ -417,11 +417,11 @@ def create_app(test_config=None):
         # attach columns necessary for identification
         factors_list.append('cnty_fips')
         factors_list.append('cnty_name')
-        factors_list.append('state_abbr')
+      
 
 
         # grab county specific risk factor, facotrs
-        county_factors=risk_factors.loc[risk_factors.cnty_fips==county_fips][factors_list].set_index(['cnty_fips','cnty_name','state_abbr']).stack().reset_index().rename(columns={'level_3':'factors', 0:'factors_values'})
+        county_factors=risk_factors.loc[risk_factors.cnty_fips==county_fips][factors_list].set_index(['cnty_fips','cnty_name']).stack().reset_index().rename(columns={'level_2':'factors', 0:'factors_values'})
 
         # grab quantiles data for county
         Q5=risk_factors.loc[risk_factors.cnty_fips==county_fips][Q5_list].reset_index().transpose().iloc[1:].reset_index().rename(columns={'index':'factors',0:'Q5'})
@@ -616,9 +616,9 @@ def create_app(test_config=None):
 
         db = client.covid_dash
         sus_tot=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
-        trans_tot=pd.DataFrame(db.transmission.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
-
-        totals=[str(sus_tot.total[0]),str(trans_tot.total[0])]
+        exp_tot=pd.DataFrame(db.exposure.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
+        
+        totals=[str(sus_tot.total[0]),str(trans_tot.total[0]),str(exp_tot.total[0])]
         return jsonify(totals)
 
 
