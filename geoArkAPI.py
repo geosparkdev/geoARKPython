@@ -607,7 +607,7 @@ def create_app(test_config=None):
 
         factors=factors.astype(str)
         together=[factors.to_dict('record'),factors.agg({'max','min'}).transpose().reset_index().rename(columns={'index':'factor'}).iloc[3:].to_dict('record')]
-
+        return jsonify(together)
 
 
 
