@@ -614,9 +614,9 @@ def create_app(test_config=None):
     def getwindrose():
         FIPS=json.loads(request.data)
         
-        cnty_fips=29003
-        sus_tot=pd.DataFrame(db.susceptibility.find({"cnty_fips":cnty_fips},{"cnty_fips":1,"total":1,"_id":0}))
-        trans_tot=pd.DataFrame(db.transmission.find({"cnty_fips":cnty_fips},{"cnty_fips":1,"total":1,"_id":0}))
+        db = client.covid_results
+        sus_tot=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
+        trans_tot=pd.DataFrame(db.transmission.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
 
         totals=[str(sus_tot.total[0]),str(trans_tot.total[0])]
         return jsonify(totals)
