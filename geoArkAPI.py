@@ -398,7 +398,11 @@ def create_app(test_config=None):
         risk_factor=variables[1]
         county_fips=variables[0]
 
+
+        print('PRINTING IN HERE')
+
         print(county_fips)
+        print(risk_factor)
 
         #Get risk factors data for user selected risk factor
         db = client.covid_dash
