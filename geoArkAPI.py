@@ -649,6 +649,11 @@ def create_app(test_config=None):
         db3= client.covid_dash
         actual_values=pd.DataFrame(list(db3.modeling_covid.find({},{"_id":0})))
 
+
+        #add max values of covid deaths and cases to metadata 
+        metadata.append({"category":"covid_deaths", "max":str(actual_values.filter(regex='covid_deaths').max().max())})
+        metadata.append({"category":"covid_cases", "max":str(actual_values.filter(regex='covid_cases').max().max())})   
+
         counties=counties.to_dict('records')
 
         features=[]
