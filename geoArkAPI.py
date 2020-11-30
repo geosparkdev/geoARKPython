@@ -766,12 +766,14 @@ def create_app(test_config=None):
         labels_comb=['tot_'+ s for s in labels]
 
         totals['total_risk']=totals[labels_comb].sum(axis=1)
-        totals=totals.astype(str)
 
         totals_sorted=totals.sort_values('total_risk', ascending=False)
+        totals_sorted=totals_sorted.astype(str)
 
-        counties_list=totals_sorted['County Name'].unique()
-        totals_list=totals_sorted.total_risk.unique()
+        counties_list=list(totals_sorted['County Name'].unique())
+        totals_list=list(totals_sorted.total_risk.unique())
+
+        totals=totals.astype(str)
 
         together=jsonify([counties_list,totals_list, totals.to_dict('records')])
 
