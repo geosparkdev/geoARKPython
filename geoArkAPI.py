@@ -730,6 +730,47 @@ def create_app(test_config=None):
 
 
 
+
+    ####### CATEGORIES WEBPAGE ###########
+
+    @app.route('/getTotals', methods=['POST'])
+    def getTotals():
+
+        ## accessibility, exposure, health resources, socioeconomic, susceptiblity, transmission
+        db = client.covid_dash
+
+        risk_factors_bool=[0,1,0,0,1,1]
+        risk_factors_labels=['accessibility','exposure','health resources','socioeconomic','susceptibility','transmission']
+
+
+
+        risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
+        risk_factors
+
+        totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
+
+        labels=[]
+
+        for index,row in risk_factors.iterrows():
+            if row.in_use==1:
+                temp=pd.DataFrame(db[row.risk_factor].find({},{"cnty_fips":1,"total":1,"_id":0}))
+                temp=temp.rename(columns={'cnty_fips':'countyFIPS', 'total':'tot_'+row.risk_factor})
+                totals=totals.merge(temp, on='countyFIPS', how='left')
+                labels.append(row.risk_factor)
+                
+                
+        labels_comb=['tot_'+ s for s in labels]
+
+        totals['total_risk']=totals[labels_comb].sum(axis=1)
+        totals=totals.astype(str)
+
+        totals_sorted=totals.sort_values('total_risk', ascending=False)
+
+        counties_list=totals_sorted['County Name'].unique()
+        totals_list=totals_sorted.total_risk.unique()
+
+        together=[counties_list,totals_list, totals.to_dict('records')]
+
 #########################################################################
 ##########                    GEOARK DATA                     ###########
 #########################################################################
