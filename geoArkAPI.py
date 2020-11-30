@@ -775,7 +775,7 @@ def create_app(test_config=None):
 
         totals=totals.astype(str)
 
-        together=jsonify([counties_list,totals_list, totals.to_dict('records')])
+        return jsonify([counties_list,totals_list, totals.to_dict('records')])
 
 #########################################################################
 ##########                    GEOARK DATA                     ###########
