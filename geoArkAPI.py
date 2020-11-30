@@ -742,6 +742,8 @@ def create_app(test_config=None):
         db = client.covid_dash
 
         risk_factors_bool=json.loads(request.data)
+        print(risk_factors_bool)
+        print('#*$*#$*#$*#*')
         risk_factors_labels=['accessibility','exposure','health resources','socioeconomic','susceptibility','transmission']
 
 
