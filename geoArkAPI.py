@@ -766,6 +766,7 @@ def create_app(test_config=None):
         labels_comb=['tot_'+ s for s in labels]
 
         totals['total_risk']=totals[labels_comb].sum(axis=1)
+        totals['County Name'] = totals['County Name'].str.replace(r'County', '')
 
         totals_sorted=totals.sort_values('total_risk')
         totals_sorted=totals_sorted.astype(str)
