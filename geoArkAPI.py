@@ -774,6 +774,8 @@ def create_app(test_config=None):
         counties_list=list(totals_sorted['County Name'])
         totals_list=list(totals_sorted.total_risk)
 
+        totals=totals.sort_values('total_risk',ascending=True)
+
         metadata=[{"factor":"total_risk","max":str(totals.total_risk.max())}]
 
         totals=totals.astype(str)
