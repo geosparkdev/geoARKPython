@@ -783,6 +783,30 @@ def create_app(test_config=None):
 
         return jsonify([counties_list,totals_list, totals.to_dict('records'), metadata])
 
+
+
+
+
+
+    @app.route('/getFilters', methods=['GET'])
+    def getFilters():
+        db = client.covid_dash
+        socioeconomic=pd.DataFrame(list(db.socioeconomic.find({},{"cnty_fips":1,"RUCC_2013":1,"_id":0})))
+
+        metadata=pd.DataFrame()
+        metadata=metadata.append({"filter":"RUCC_2013",
+                                "min":socioeconomic.RUCC_2013.min(),
+                                "max":socioeconomic.RUCC_2013.max()},ignore_index=True
+            
+        )
+
+
+        filters=socioeconomic.to_dict("records")
+
+        together=[filters,metadata.to_dict("records")]
+        
+        return jsonify(together)
+
 #########################################################################
 ##########                    GEOARK DATA                     ###########
 #########################################################################
