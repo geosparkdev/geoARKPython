@@ -790,18 +790,20 @@ def create_app(test_config=None):
 
     @app.route('/getFilters', methods=['GET'])
     def getFilters():
-        db = client.covid_dash
+       db = client.covid_dash
         socioeconomic=pd.DataFrame(list(db.socioeconomic.find({},{"cnty_fips":1,"RUCC_2013":1,"_id":0})))
 
         metadata=pd.DataFrame()
         metadata=metadata.append({"filter":"RUCC_2013",
-                                "min":socioeconomic.RUCC_2013.min(),
-                                "max":socioeconomic.RUCC_2013.max()},ignore_index=True
+                                "min":str(socioeconomic.RUCC_2013.min()),
+                                "max":str(socioeconomic.RUCC_2013.max())},ignore_index=True
             
         )
 
 
+        socioeconomic=socioeconomic.astype(str)
         filters=socioeconomic.to_dict("records")
+
 
         together=[filters,metadata.to_dict("records")]
         
