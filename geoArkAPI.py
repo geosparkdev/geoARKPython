@@ -790,7 +790,7 @@ def create_app(test_config=None):
 
     @app.route('/getFilters', methods=['GET'])
     def getFilters():
-       db = client.covid_dash
+        db = client.covid_dash
         socioeconomic=pd.DataFrame(list(db.socioeconomic.find({},{"cnty_fips":1,"RUCC_2013":1,"_id":0})))
 
         metadata=pd.DataFrame()
