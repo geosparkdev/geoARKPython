@@ -745,7 +745,7 @@ def create_app(test_config=None):
         risk_factors_bool=json.loads(request.data)
         print(risk_factors_bool)
         print('#*$*#$*#$*#*')
-        risk_factors_labels=['accessibility','exposure','health resources','socioeconomic','susceptibility','transmission']
+        risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
 
 
 
