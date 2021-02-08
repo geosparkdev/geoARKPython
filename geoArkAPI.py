@@ -452,14 +452,22 @@ def create_app(test_config=None):
         deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily','4fd71eac_02_daily_01':FIPS},{'_id':0})))
 
         db = client.covid_dash
-        susceptibility=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"Age65P_Nor":1,"TPops2701":1}))
+        susceptibility=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"Age65P_Nor":1,"TPops2701":1,"total":1}))
+        healthresources=pd.DataFrame(db.healthresources.find({"cnty_fips":FIPS},{"total":1}))
+        exposure=pd.DataFrame(db.exposure.find({"cnty_fips":FIPS},{"total":1}))
+        accessibility=pd.DataFrame(db.accessibility.find({"cnty_fips":FIPS},{"total":1}))
+        socioeconomic=pd.DataFrame(db.socioeconomic.find({"cnty_fips":FIPS},{"total":1}))
+        transmission=pd.DataFrame(db.transmission.find({"cnty_fips":FIPS},{"total":1}))
+
         total_population=susceptibility.TPops2701[0]
         total_65=susceptibility.Age65P_Nor[0]
 
         total_cases=cases.iloc[:,-1:].values[0][0]
         total_deaths=deaths.iloc[:,-1:].values[0][0]
+        total_risk=susceptibility.total.values[0]+healthresources.total.values[0]+exposure.total.values[0]+accessibility.total.values[0]+socioeconomic.total.values[0]+transmission.total.values[0]
 
-        together=[str(total_population),str("{:.1f}".format(total_65*100))+"%",str(total_cases),str(total_deaths)]
+        together=[str(total_population),str("{:.1f}".format(total_65*100))+"%",str(total_cases),str(total_deaths),str(total_risk)]
+
         return jsonify(together)
 
 
