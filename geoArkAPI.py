@@ -626,9 +626,11 @@ def create_app(test_config=None):
         sus_tot=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
         trans_tot=pd.DataFrame(db.transmission.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
         exp_tot=pd.DataFrame(db.exposure.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
-
         soc_tot=pd.DataFrame(db.socioeconomic.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
-        totals=[str(sus_tot.total[0]),str(trans_tot.total[0]),str(exp_tot.total[0]),str(soc_tot.total[0])]
+        acc_tot=pd.DataFrame(db.accessibility.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
+        hr_tot=acc_tot=pd.DataFrame(db.healthresources.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
+
+        totals=[str(sus_tot.total[0]),str(trans_tot.total[0]),str(exp_tot.total[0]),str(soc_tot.total[0]),str(acc_tot.total[0]),str(hr_tot.total[0])]
         return jsonify(totals)
 
     @app.route('/getpredictions', methods=['GET'])
