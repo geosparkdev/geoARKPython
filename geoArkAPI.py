@@ -807,7 +807,7 @@ def create_app(test_config=None):
     ################ Data Sources Webpage #####################
     @app.route('/getdatasources', methods=['POST'])
     def getDataSources():
-
+        db = client.covid_dash
         risk_factor=json.loads(request.data)
         datasources= pd.DataFrame(list(db.covid_sources.find({'risk_factor':risk_factor},{'_id':0,'source_description':0,'risk_factor':0})))
         final=datasources.to_dict("records")
