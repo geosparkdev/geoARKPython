@@ -38,21 +38,6 @@ client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local
 
 
 
-## LOCAL TESTING
-# MONGO_HOST = "192.168.1.202"
-# MONGO_USER = "tiffyson"
-# MONGO_PASS = "Hented123!"
-
-# server = SSHTunnelForwarder(
-#     MONGO_HOST,
-#     ssh_username=MONGO_USER,
-#     ssh_password=MONGO_PASS,
-#     remote_bind_address=('127.0.0.1', 27017)
-# )
-
-# server.start()
-# client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local por
-
 def create_app(test_config=None):
     app = flask.Flask(__name__)
     CORS(app)
@@ -344,8 +329,6 @@ def create_app(test_config=None):
     def getSusData():
 
         db = client.covid_dash
-
-
 
         county_fips=json.loads(request.data)
         susceptibility=pd.DataFrame(db.susceptibility.find())
@@ -818,6 +801,18 @@ def create_app(test_config=None):
         together=[filters,metadata.to_dict("records")]
         
         return jsonify(together)
+
+
+
+    ################ Data Sources Webpage #####################
+    @app.route('/getdatasources', methods=['POST'])
+    def getDataSources():
+
+        risk_factor=json.loads(request.data)
+        datasources= pd.DataFrame(list(db.covid_sources.find({'risk_factor':risk_factor},{'_id':0,'source_description':0,'risk_factor':0})))
+        final=datasources.to_dict("records")
+        return jsonify(final)
+
 
 #########################################################################
 ##########                    GEOARK DATA                     ###########
