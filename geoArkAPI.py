@@ -810,7 +810,7 @@ def create_app(test_config=None):
         db = client.covid_dash
         risk_factor=json.loads(request.data)
         datasources= pd.DataFrame(list(db.covid_sources.find({'risk_factor':risk_factor},{'_id':0,'source_description':0,'risk_factor':0})))
-        return jsonify(datasources)
+        return jsonify(list(datasources))
 
 
 #########################################################################
