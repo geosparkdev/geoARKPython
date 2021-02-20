@@ -740,8 +740,6 @@ def create_app(test_config=None):
         print('#*$*#$*#$*#*')
         risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
 
-
-
         risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
         risk_factors
 
@@ -778,6 +776,53 @@ def create_app(test_config=None):
 
 
 
+
+    @app.route('/getTotalsFilter', methods=['POST'])
+    def getTotalsFilter():
+
+       ## Total Risk-- Bar graph
+
+        ## accessibility, exposure, health resources, socioeconomic, susceptiblity, transmission
+        db = client.covid_dash
+
+        risk_factors_bool=json.loads(request.data)
+        print(risk_factors_bool)
+        print('#*$*#$*#$*#*')
+        risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
+
+        risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
+        risk_factors
+
+        totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
+
+        labels=[]
+
+        for index,row in risk_factors.iterrows():
+            if row.in_use==1:
+                temp=pd.DataFrame(db[row.risk_factor].find({},{"cnty_fips":1,"total":1,"_id":0}))
+                temp=temp.rename(columns={'cnty_fips':'countyFIPS', 'total':'tot_'+row.risk_factor})
+                totals=totals.merge(temp, on='countyFIPS', how='left')
+                labels.append(row.risk_factor)
+                
+                
+        labels_comb=['tot_'+ s for s in labels]
+
+        totals['total_risk']=totals[labels_comb].sum(axis=1)
+        totals['County Name'] = totals['County Name'].str.replace(r'County', '')
+
+        totals_sorted=totals.sort_values('total_risk', ascending=False)
+        totals_sorted=totals_sorted.astype(str)
+
+        counties_list=list(totals_sorted['County Name'])
+        totals_list=list(totals_sorted.total_risk)
+
+        totals=totals.sort_values('total_risk',ascending=False)
+
+        metadata=[{"factor":"total_risk","max":str(totals.total_risk.max())}]
+
+        totals=totals.astype(str)
+
+        return jsonify([counties_list,totals_list, totals.to_dict('records'), metadata])
 
 
 
