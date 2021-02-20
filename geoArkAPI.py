@@ -784,21 +784,13 @@ def create_app(test_config=None):
     @app.route('/getFilters', methods=['GET'])
     def getFilters():
         db = client.covid_dash
-        socioeconomic=pd.DataFrame(list(db.socioeconomic.find({},{"cnty_fips":1,"RUCC_2013":1,"_id":0})))
+        metadata=pd.DataFrame(list(db.filter_metadata.find({},{'_id':0})))
+        filters=pd.DataFrame(list(db.filters.find({},{'_id':0})))
 
-        metadata=pd.DataFrame()
-        metadata=metadata.append({"filter":"RUCC_2013",
-                                "min":str(socioeconomic.RUCC_2013.min()),
-                                "max":str(socioeconomic.RUCC_2013.max()),
-                                "display":'Rural urban continuum'},ignore_index=True)
-            
+        metadata=metadata.astype(str)
+        filters=filters.astype(str)
 
-
-        socioeconomic=socioeconomic.astype(str)
-        filters=socioeconomic.to_dict("records")
-
-
-        together=[filters,metadata.to_dict("records")]
+        together=[filters.to_dict("records"),metadata.to_dict("records")]
         
         return jsonify(together)
 
