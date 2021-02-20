@@ -792,7 +792,6 @@ def create_app(test_config=None):
                                 "max":str(socioeconomic.RUCC_2013.max()),
                                 "display":'Rural urban continuum'},ignore_index=True)
             
-        )
 
 
         socioeconomic=socioeconomic.astype(str)
