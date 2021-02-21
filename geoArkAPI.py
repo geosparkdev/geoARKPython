@@ -784,6 +784,9 @@ def create_app(test_config=None):
 
         ## accessibility, exposure, health resources, socioeconomic, susceptiblity, transmission
         db = client.covid_dash
+        print('STUFF HERER HERHEHREHR')
+        print(request.data)
+        print(request.data[0])
 
         risk_factors_bool=json.loads(request.data[0])
         filter1_on=json.loads(request.data[1])
