@@ -798,12 +798,15 @@ def create_app(test_config=None):
 
         risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
         filters=pd.DataFrame(list(db.filters.find({},{"_id":0})))
+        print("printing risk factors")
+        print(risk_factors)
         
         if data.get('filter1_on')==1:
             filter_counties=filters.loc[(filters[data.get('filter1_var')]>=data.get('filter1_min')) & (filters[data.get('filter1_var')]<=data.get('filter1_max'))]
             filter_counties=filter_counties.rename(columns={'cnty_fips':'countyFIPS'})
             totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
-            print("covid totals",totals)
+            print('in loop')
+            
             totals=filter_counties.merge(totals,on='countyFIPS',how='left')
         else:
             totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
