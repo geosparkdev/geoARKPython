@@ -785,15 +785,24 @@ def create_app(test_config=None):
         ## accessibility, exposure, health resources, socioeconomic, susceptiblity, transmission
         db = client.covid_dash
 
-        risk_factors_bool=json.loads(request.data)
+        risk_factors_bool=json.loads(request.data[0])
+        filter_controller=json.loads(request.data[1])
+
+
         print(risk_factors_bool)
         print('#*$*#$*#$*#*')
         risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
 
         risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
-        risk_factors
-
-        totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
+        filters=pd.DataFrame(list(db.filters.find({},{"_id":0})))
+        
+        if filter_controller['filter1_on']==True:
+            filter_counties=filters.loc[(filters[filter_controller['filter1_var']]>=filter_controller['filter1_min']) & (filters[filter_controller['filter1_var']]<=filter_controller['filter1_max'])]
+            filter_counties=filter_counties.rename(columns={'cnty_fips':'countyFIPS'})
+            totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
+            totals=filter_counties.merge(totals,on='countyFIPS',how='left')
+         else:
+            totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
 
         labels=[]
 
