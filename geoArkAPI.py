@@ -788,6 +788,7 @@ def create_app(test_config=None):
         risk_factors_bool=json.loads(request.data[0])
         filter_controller=json.loads(request.data[1])
 
+        print(filter_controller)
 
         print(risk_factors_bool)
         print('#*$*#$*#$*#*')
