@@ -801,7 +801,7 @@ def create_app(test_config=None):
             filter_counties=filter_counties.rename(columns={'cnty_fips':'countyFIPS'})
             totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
             totals=filter_counties.merge(totals,on='countyFIPS',how='left')
-         else:
+        else:
             totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
 
         labels=[]
