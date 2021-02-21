@@ -788,7 +788,7 @@ def create_app(test_config=None):
     
         test=json.loads(request.data)
 
-        print(test.get('risk_factors')
+        print(test.get('risk_factors'))
 
         print('#*$*#$*#$*#*')
         risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
