@@ -790,17 +790,6 @@ def create_app(test_config=None):
 
         print(test.get('risk_factors')
 
-        risk_factors_bool=json.loads(request.data[0])
-        filter1_on=json.loads(request.data[1])
-        filter1_var=json.loads(request.data[2])
-        filter1_max=json.loads(request.data[3])
-        filter1_min=json.loads(request.data[4])
-
-        print('STUFF HERER HERHEHREHR')
-        print(filter1_on)
-        print(risk_factors_bool)
-
-        print(risk_factors_bool)
         print('#*$*#$*#$*#*')
         risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
 
