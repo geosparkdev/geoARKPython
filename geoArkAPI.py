@@ -824,6 +824,7 @@ def create_app(test_config=None):
         labels_comb=['tot_'+ s for s in labels]
 
         totals['total_risk']=totals[labels_comb].sum(axis=1)
+        print(totals)
         totals['County Name'] = totals['County Name'].str.replace(r'County', '')
 
         totals_sorted=totals.sort_values('total_risk', ascending=False)
@@ -837,7 +838,6 @@ def create_app(test_config=None):
         metadata=[{"factor":"total_risk","max":str(totals.total_risk.max())}]
 
         totals=totals.astype(str)
-        print(totals)
 
         return jsonify([counties_list,totals_list, totals.to_dict('records'), metadata])
 
