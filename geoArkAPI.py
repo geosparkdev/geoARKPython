@@ -786,18 +786,21 @@ def create_app(test_config=None):
         db = client.covid_dash
         print('STUFF HERER HERHEHREHR')
     
-        test=json.loads(request.data)
+        data=json.loads(request.data)
 
-        print(test.get('risk_factors'))
+        print(data.get('risk_factors'))
 
         print('#*$*#$*#$*#*')
+
+
+        risk_factors_bool=data.get('risk_factors')
         risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
 
         risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
         filters=pd.DataFrame(list(db.filters.find({},{"_id":0})))
         
-        if filter1_on==True:
-            filter_counties=filters.loc[(filters[filter1_var]>=filter1_min) & (filters[filter1_var]<=filter1_max)]
+        if data.get('filter1_on')==1:
+            filter_counties=filters.loc[(filters[data.get('filter1_var')]>=data.get('filter1_min')) & (filters[data.get('filter1_var')]<=data.get('filter1_max'))]
             filter_counties=filter_counties.rename(columns={'cnty_fips':'countyFIPS'})
             totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
             totals=filter_counties.merge(totals,on='countyFIPS',how='left')
