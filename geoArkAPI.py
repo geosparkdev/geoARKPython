@@ -833,6 +833,7 @@ def create_app(test_config=None):
         metadata=[{"factor":"total_risk","max":str(totals.total_risk.max())}]
 
         totals=totals.astype(str)
+        print(jsonify([counties_list,totals_list, totals.to_dict('records'), metadata]))
 
         return jsonify([counties_list,totals_list, totals.to_dict('records'), metadata])
 
