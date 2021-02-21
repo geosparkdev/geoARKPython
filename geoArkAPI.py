@@ -803,6 +803,7 @@ def create_app(test_config=None):
             filter_counties=filters.loc[(filters[data.get('filter1_var')]>=data.get('filter1_min')) & (filters[data.get('filter1_var')]<=data.get('filter1_max'))]
             filter_counties=filter_counties.rename(columns={'cnty_fips':'countyFIPS'})
             totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
+            print("covid totals",totals)
             totals=filter_counties.merge(totals,on='countyFIPS',how='left')
         else:
             totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
