@@ -616,6 +616,18 @@ def create_app(test_config=None):
         totals=[str(sus_tot.total[0]),str(trans_tot.total[0]),str(exp_tot.total[0]),str(soc_tot.total[0]),str(acc_tot.total[0]),str(hr_tot.total[0])]
         return jsonify(totals)
 
+
+
+
+    @app.route('/getCovidDate', methods=['GET'])
+    def getCovidDate():
+        db = client.metadata
+        metadata_daily = pd.DataFrame(db.metadata.find({"update_frequency":"daily"}))
+        date=pd.to_datetime(metadata_daily.loc[metadata_daily.dataset_id=='4fd71eac_01_daily'].upload_date).dt.date.values[0]
+        date_string=date.strftime('%m/%d/%Y')
+        return jsonify(date_string)
+
+
     @app.route('/getpredictions', methods=['GET'])
     def getpredictions():
         db = client.covid_results
