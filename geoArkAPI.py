@@ -386,6 +386,10 @@ def create_app(test_config=None):
         db = client.covid_dash
         risk_factors=pd.DataFrame(db[risk_factor].find({},{'_id':0}))
 
+        sources=pd.DataFrame(db.covid_sources.find({'risk_factor':risk_factor},{"field":'1',"description":"1","_id":0}))
+        sources=sources.rename(columns={"field":"factors"})
+
+
 
         # pull out columns to displays-- columns with Quantiles 
         Q5_list= [x for x in risk_factors if '_Q5' in x]
@@ -418,6 +422,7 @@ def create_app(test_config=None):
 
         # get color of bar graph based on quantiles
         county_factors['Q5_color'] = county_factors.apply (lambda row: colors(row.Q5), axis=1)
+        county_factors=county_factors.merge(sources, on='factors', how='left')
         county_factors=county_factors.astype(str)
 
         final=county_factors.sort_values('Q5', ascending=False).to_dict('records')
