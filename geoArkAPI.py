@@ -800,13 +800,6 @@ def create_app(test_config=None):
         return jsonify([totals.to_dict('records'), metadata])
 
 
-    @app.route('/FilterUpdate', methods=['POST'])
-    def FilterUpdate():
-        tot_table=json.loads(request.data)
-        print(tot_table)
-
-        return 'okay'
-
 
     @app.route('/getTotalsFilter', methods=['POST'])
     def getTotalsFilter():
