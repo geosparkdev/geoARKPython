@@ -599,9 +599,12 @@ def create_app(test_config=None):
         # merge risk factors with total
         factors=risk_factors[factors_list]
         factors=factors.merge(riskQ5[['cnty_fips','total']], on='cnty_fips', how='left')
+        metadata=factors.agg({'max','min'}).transpose().reset_index().rename(columns={'index':'factor'})
+
 
         factors=factors.astype(str)
-        together=[factors.to_dict('record'),factors.agg({'max','min'}).transpose().reset_index().rename(columns={'index':'factor'}).to_dict('record')]
+        metadata=metadata.astype(str)
+        together=[factors.to_dict('record'),metadata.to_dict('record')]
         return jsonify(together)
 
 
