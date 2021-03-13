@@ -757,7 +757,6 @@ def create_app(test_config=None):
         db = client.covid_dash
 
         risk_factors_bool=json.loads(request.data)
-
         risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
 
         risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
@@ -783,8 +782,8 @@ def create_app(test_config=None):
         totals_sorted=totals.sort_values('total_risk', ascending=False)
         totals_sorted=totals_sorted.astype(str)
 
-        counties_list=list(totals_sorted['County Name'])
-        totals_list=list(totals_sorted.total_risk)
+        #counties_list=list(totals_sorted['County Name'])
+        #totals_list=list(totals_sorted.total_risk)
 
         totals=totals.sort_values('total_risk',ascending=False)
 
@@ -792,7 +791,7 @@ def create_app(test_config=None):
 
         totals=totals.astype(str)
 
-        return jsonify([counties_list,totals_list, totals.to_dict('records'), metadata])
+        return jsonify([totals.to_dict('records'), metadata])
 
 
 
