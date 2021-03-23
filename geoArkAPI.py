@@ -614,14 +614,17 @@ def create_app(test_config=None):
         FIPS=json.loads(request.data)
 
         db = client.covid_dash
-        sus_tot=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
-        trans_tot=pd.DataFrame(db.transmission.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
-        exp_tot=pd.DataFrame(db.exposure.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
-        soc_tot=pd.DataFrame(db.socioeconomic.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
-        acc_tot=pd.DataFrame(db.accessibility.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
-        hr_tot=acc_tot=pd.DataFrame(db.healthresources.find({"cnty_fips":FIPS},{"cnty_fips":1,"total":1,"_id":0}))
+        sus_tot=pd.DataFrame(db.windrose_normalized.find({"cnty_fips":FIPS},{"cnty_fips":1,"susceptibility":1,"_id":0}))
+        trans_tot=pd.DataFrame(db.windrose_normalized.find({"cnty_fips":FIPS},{"cnty_fips":1,"transmission":1,"_id":0}))
+        exp_tot=pd.DataFrame(db.windrose_normalized.find({"cnty_fips":FIPS},{"cnty_fips":1,"exposure":1,"_id":0}))
+        soc_tot=pd.DataFrame(db.windrose_normalized.find({"cnty_fips":FIPS},{"cnty_fips":1,"socioeconomic":1,"_id":0}))
+        acc_tot=pd.DataFrame(db.windrose_normalized.find({"cnty_fips":FIPS},{"cnty_fips":1,"accessibility":1,"_id":0}))
+        hr_tot=pd.DataFrame(db.windrose_normalized.find({"cnty_fips":FIPS},{"cnty_fips":1,"healthresources":1,"_id":0}))
+                
+                
 
-        totals=[str(sus_tot.total[0]),str(trans_tot.total[0]),str(exp_tot.total[0]),str(soc_tot.total[0]),str(acc_tot.total[0]),str(hr_tot.total[0])]
+
+        totals=[str(sus_tot.susceptibility[0]),str(trans_tot.transmission[0]),str(exp_tot.exposure[0]),str(soc_tot.socioeconomic[0]),str(acc_tot.accessibility[0]),str(hr_tot.healthresources[0])]
         return jsonify(totals)
 
 
