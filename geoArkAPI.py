@@ -441,7 +441,7 @@ def create_app(test_config=None):
         deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily','4fd71eac_02_daily_01':FIPS},{'_id':0})))
 
         db = client.covid_dash
-        susceptibility=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"Age65P_Nor":1}))
+        susceptibility=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"Age65P_Nor":1, "TPops2701":1}))
         risktotal_5=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"normalized_0_5":1}))
 
 
