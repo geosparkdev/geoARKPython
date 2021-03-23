@@ -451,7 +451,7 @@ def create_app(test_config=None):
         total_cases=cases.iloc[:,-1:].values[0][0]
         total_deaths=deaths.iloc[:,-1:].values[0][0]
 
-        together=[str(total_population),str("{:.1f}".format(total_65*100))+"%",str(total_cases),str(total_deaths),str(risktotal_5)]
+        together=[str(total_population),str("{:.1f}".format(total_65*100))+"%",str(total_cases),str(total_deaths),str(risktotal_5.normalized_0_5.values[0])]
 
 
         return jsonify(together)
