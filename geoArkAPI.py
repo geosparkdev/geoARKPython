@@ -777,7 +777,7 @@ def create_app(test_config=None):
 
     
 
-        totals=totals.astype(str)
+        categories_data=categories_data.astype(str)
 
         return jsonify([categories_data.to_dict('records'), metadata])
 
