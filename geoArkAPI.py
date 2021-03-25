@@ -772,7 +772,8 @@ def create_app(test_config=None):
 
         categories_data['total_risk']=categories_data[risk_factors.loc[risk_factors.in_use==1].risk_factor.values].sum(axis=1)
         categories_data=categories_data.sort_values('total_risk',ascending=False)
-        metadata=[{"factor":"total_risk","max":str(categories_data.total_risk.max())}]
+        metadata=[{"factor":"total_risk","max":str(categories_data.total_risk.max()),"min":str(categories_data.total_risk.min())}]
+
 
         filters_metadata=pd.DataFrame(list(db.filter_metadata.find({},{'_id':0})))
         
