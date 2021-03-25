@@ -774,12 +774,12 @@ def create_app(test_config=None):
         categories_data=categories_data.sort_values('total_risk',ascending=False)
         metadata=[{"factor":"total_risk","max":str(categories_data.total_risk.max())}]
 
-
-    
-
+        filters_metadata=pd.DataFrame(list(db.filter_metadata.find({},{'_id':0})))
+        
+        filters_metadata=filters_metadata.astype(str)
         categories_data=categories_data.astype(str)
 
-        return jsonify([categories_data.to_dict('records'), metadata])
+        return jsonify([categories_data.to_dict('records'), metadata,filters_metadata.to_dict('records')])
 
 
 
