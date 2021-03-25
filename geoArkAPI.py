@@ -761,47 +761,69 @@ def create_app(test_config=None):
         db = client.covid_dash
         
 
+
         risk_factors_bool=json.loads(request.data)
         risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
 
-    
-        filters=pd.DataFrame(list(db.filters.find({},{"_id":0})))
-        filters=filters.rename(columns={'cnty_fips':'countyFIPS'})
-
         risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
-        risk_factors
 
-        totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
 
-        labels=[]
+        categories_data=pd.DataFrame(db.categories_totals.find({},{'_id':0,'total_risk':0}))
 
-        for index,row in risk_factors.iterrows():
-            if row.in_use==1:
-                temp=pd.DataFrame(db[row.risk_factor].find({},{"cnty_fips":1,"total":1,"_id":0}))
-                temp=temp.rename(columns={'cnty_fips':'countyFIPS', 'total':'tot_'+row.risk_factor})
-                totals=totals.merge(temp, on='countyFIPS', how='left')
-                labels.append(row.risk_factor)
-                
-                
-        labels_comb=['tot_'+ s for s in labels]
+        categories_data['total_risk']=categories_data[risk_factors.loc[risk_factors.in_use==1].risk_factor.values].sum(axis=1)
+        categories_data=categories_data.sort_values('total_risk',ascending=False)
+        metadata=[{"factor":"total_risk","max":str(categories_data.total_risk.max())}]
 
-        totals['total_risk']=totals[labels_comb].sum(axis=1)
-        totals['County Name'] = totals['County Name'].str.replace(r'County', '')
 
-        #totals_sorted=totals.sort_values('total_risk', ascending=False)
-       # totals_sorted=totals_sorted.astype(str)
-
-        #counties_list=list(totals_sorted['County Name'])
-        #totals_list=list(totals_sorted.total_risk)
-
-        totals=totals.sort_values('total_risk',ascending=False)
-        totals=totals.merge(filters, on='countyFIPS', how='left')
-
-        metadata=[{"factor":"total_risk","max":str(totals.total_risk.max())}]
+    
 
         totals=totals.astype(str)
 
-        return jsonify([totals.to_dict('records'), metadata])
+        return jsonify([categories_data.to_dict('records'), metadata])
+
+
+
+    #     risk_factors_bool=json.loads(request.data)
+    #     risk_factors_labels=['accessibility','exposure','healthresources','socioeconomic','susceptibility','transmission']
+
+    
+    #     filters=pd.DataFrame(list(db.filters.find({},{"_id":0})))
+    #     filters=filters.rename(columns={'cnty_fips':'countyFIPS'})
+
+    #     risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
+    #     risk_factors
+
+    #     totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
+
+    #     labels=[]
+
+    #     for index,row in risk_factors.iterrows():
+    #         if row.in_use==1:
+    #             temp=pd.DataFrame(db[row.risk_factor].find({},{"cnty_fips":1,"total":1,"_id":0}))
+    #             temp=temp.rename(columns={'cnty_fips':'countyFIPS', 'total':'tot_'+row.risk_factor})
+    #             totals=totals.merge(temp, on='countyFIPS', how='left')
+    #             labels.append(row.risk_factor)
+                
+                
+    #     labels_comb=['tot_'+ s for s in labels]
+
+    #     totals['total_risk']=totals[labels_comb].sum(axis=1)
+    #     totals['County Name'] = totals['County Name'].str.replace(r'County', '')
+
+    #     #totals_sorted=totals.sort_values('total_risk', ascending=False)
+    #    # totals_sorted=totals_sorted.astype(str)
+
+    #     #counties_list=list(totals_sorted['County Name'])
+    #     #totals_list=list(totals_sorted.total_risk)
+
+    #     totals=totals.sort_values('total_risk',ascending=False)
+    #     totals=totals.merge(filters, on='countyFIPS', how='left')
+
+    #     metadata=[{"factor":"total_risk","max":str(totals.total_risk.max())}]
+
+    #     totals=totals.astype(str)
+
+    #     return jsonify([totals.to_dict('records'), metadata])
 
 
 
