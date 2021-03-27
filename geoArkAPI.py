@@ -802,7 +802,7 @@ def create_app(test_config=None):
         geoJSON={"type":"FeatureCollection","features":back_together.to_dict('records')}
 
         final=[dates,metadata,geoJSON]
-         return jsonify(final)
+        return jsonify(final)
 
 
     @app.route('/getPredictions', methods=['GET'])
