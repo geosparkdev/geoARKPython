@@ -639,6 +639,90 @@ def create_app(test_config=None):
 
     @app.route('/getpredictions', methods=['GET'])
     def getpredictions():
+    #     db = client.covid_results
+    #     data = pd.DataFrame(list(db.prediction.find()))
+    #     data=data.drop(columns={'_id'})
+
+    #     #get dates
+    #     dates=data.columns[3:]
+    #     metadata=[]
+
+    #     #get max values of all categories
+    #     for x in (['yes','no']):
+    #         for i in data.Category.unique():
+    #             max_val=data.loc[(data.Mobility==x) & (data.Category==i)][dates].max().max()
+    #             metadata.append({"mobility":x,'category':i,"max":str(max_val)})
+
+    #     #create list of dates
+    #     dates=dates.to_list()
+
+    #     ## get geoJSON object for counties from database
+
+    #     db2 = client.metadata
+    #     counties=pd.DataFrame(list(db2.geoJSON_county.find({},{"_id":0})))
+
+    #     db3= client.covid_dash
+    #     actual_values=pd.DataFrame(list(db3.modeling_covid.find({},{"_id":0})))
+
+
+    #     #add max values of covid deaths and cases to metadata 
+    #    # metadata.append({"category":"covid_deaths", "max":str(actual_values.filter(regex='covid_deaths').max().max())})
+    #     #metadata.append({"category":"covid_cases", "max":str(actual_values.filter(regex='covid_cases').max().max())})   
+
+    #     # need to just get max up to this date
+    #     metadata.append({"category":"covid_deaths", "max":str(actual_values[['covid_cases_6/28/2020']].max().max())})
+    #     metadata.append({"category":"covid_cases", "max":str(actual_values[['covid_deaths_6/28/2020']].max().max())})
+
+    #     counties=counties.to_dict('records')
+
+    #     features=[]
+    #     for i in range(0,len(counties)):
+    #         features.append(counties[i]['features'])
+
+    #     ## pull out just features from original geoJSON object
+    #     just_counties=pd.DataFrame(features)
+
+
+    #     ## create table with just Missouri counties
+    #     MO_counties=just_counties[just_counties.id.str.startswith('29')]
+    #     MO_counties=MO_counties.reset_index(drop=True)
+
+
+    #     ## pull out properties object from MO_counties table and create fips field to join data to properties table
+    #     properties=pd.json_normalize(MO_counties["properties"])
+    #     properties['fips']=(properties.STATE+properties.COUNTY).astype(int)
+
+    #     ## insert data for all model category combinations
+    #     combined_data=pd.DataFrame(columns=["fips"], data=data.FIPS.unique())
+    #     for mobility in data.Mobility.unique():
+    #         for category in data.Category.unique():
+    #             extract=data.loc[(data.Mobility==mobility) & (data.Category==category)]
+    #             extract=extract.drop(columns={'Mobility','Category'})
+    #             extract=extract.add_prefix(mobility+"_"+category+"_")
+    #             extract=extract.rename(columns={mobility+"_"+category+"_FIPS":"fips"})
+    #             combined_data=combined_data.merge(extract,on='fips',how='left')
+
+    #     combined_data=combined_data.merge(actual_values,on='fips',how='left')
+
+    #     properties=properties.merge(combined_data, on='fips', how='left')
+
+    #     updated_attr=pd.DataFrame({"properties":properties.to_dict('records')})
+
+
+    #     ## update MO_counties table with properties table with added data
+    #     MO_counties=MO_counties.drop(columns='properties')
+    #     back_together=pd.concat([updated_attr,MO_counties],axis=1,sort=False)
+
+
+    #     #create final geoJSON object
+    #     geoJSON={"type":"FeatureCollection","features":back_together.to_dict('records')}
+
+    #     final=[dates,metadata,geoJSON]
+
+
+
+
+
         db = client.covid_results
         data = pd.DataFrame(list(db.prediction.find()))
         data=data.drop(columns={'_id'})
@@ -648,10 +732,10 @@ def create_app(test_config=None):
         metadata=[]
 
         #get max values of all categories
-        for x in (['yes','no']):
-            for i in data.Category.unique():
-                max_val=data.loc[(data.Mobility==x) & (data.Category==i)][dates].max().max()
-                metadata.append({"mobility":x,'category':i,"max":str(max_val)})
+
+        for i in data.Category.unique():
+            max_val=data.loc[(data.Category==i)][dates].max().max()
+            metadata.append({'category':i,"max":str(max_val)})
 
         #create list of dates
         dates=dates.to_list()
@@ -666,12 +750,12 @@ def create_app(test_config=None):
 
 
         #add max values of covid deaths and cases to metadata 
-       # metadata.append({"category":"covid_deaths", "max":str(actual_values.filter(regex='covid_deaths').max().max())})
+        # metadata.append({"category":"covid_deaths", "max":str(actual_values.filter(regex='covid_deaths').max().max())})
         #metadata.append({"category":"covid_cases", "max":str(actual_values.filter(regex='covid_cases').max().max())})   
 
         # need to just get max up to this date
-        metadata.append({"category":"covid_deaths", "max":str(actual_values[['covid_cases_6/28/2020']].max().max())})
-        metadata.append({"category":"covid_cases", "max":str(actual_values[['covid_deaths_6/28/2020']].max().max())})
+        metadata.append({"category":"covid_deaths", "max":str(actual_values[[actual_values.columns[-1]]].max().max())})
+        metadata.append({"category":"covid_cases", "max":str(actual_values[[actual_values.columns[-1]]].max().max())})
 
         counties=counties.to_dict('records')
 
@@ -694,13 +778,13 @@ def create_app(test_config=None):
 
         ## insert data for all model category combinations
         combined_data=pd.DataFrame(columns=["fips"], data=data.FIPS.unique())
-        for mobility in data.Mobility.unique():
-            for category in data.Category.unique():
-                extract=data.loc[(data.Mobility==mobility) & (data.Category==category)]
-                extract=extract.drop(columns={'Mobility','Category'})
-                extract=extract.add_prefix(mobility+"_"+category+"_")
-                extract=extract.rename(columns={mobility+"_"+category+"_FIPS":"fips"})
-                combined_data=combined_data.merge(extract,on='fips',how='left')
+
+        for category in data.Category.unique():
+            extract=data.loc[(data.Category==category)]
+            extract=extract.drop(columns={'Category'})
+            extract=extract.add_prefix(category+"_")
+            extract=extract.rename(columns={category+"_FIPS":"fips"})
+            combined_data=combined_data.merge(extract,on='fips',how='left')
 
         combined_data=combined_data.merge(actual_values,on='fips',how='left')
 
@@ -718,7 +802,7 @@ def create_app(test_config=None):
         geoJSON={"type":"FeatureCollection","features":back_together.to_dict('records')}
 
         final=[dates,metadata,geoJSON]
-        return jsonify(final)
+         return jsonify(final)
 
 
     @app.route('/getPredictions', methods=['GET'])
