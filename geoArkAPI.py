@@ -754,8 +754,9 @@ def create_app(test_config=None):
         #metadata.append({"category":"covid_cases", "max":str(actual_values.filter(regex='covid_cases').max().max())})   
 
         # need to just get max up to this date
-        metadata.append({"category":"covid_deaths", "max":str(actual_values[[actual_values.columns[-1]]].max().max())})
-        metadata.append({"category":"covid_cases", "max":str(actual_values[[actual_values.columns[-1]]].max().max())})
+        metadata.append({"category":"covid_deaths", "max":str(actual_values[['covid_deaths_'+actual_values.columns[-1].split('_')[-1]]].max().max())})
+        metadata.append({"category":"covid_cases", "max":str(actual_values[['covid_cases_'+actual_values.columns[-1].split('_')[-1]]].max().max())})
+
 
         counties=counties.to_dict('records')
 
