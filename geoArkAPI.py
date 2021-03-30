@@ -585,9 +585,12 @@ def create_app(test_config=None):
         Q5_list= [x for x in risk_factors if '_Q5' in x]
         Q5_list.append('cnty_fips')
         Q5_list.append('total')
+        
 
         final=risk_factors[Q5_list]
+        final=final.rename(columns={'total':'total_Q5'})
         final=final.astype(str)
+
         print(final)
 
         return jsonify(final.to_dict('records'))
