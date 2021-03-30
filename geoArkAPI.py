@@ -588,7 +588,7 @@ def create_app(test_config=None):
         
 
         final=risk_factors[Q5_list]
-        final=final.rename(columns={'total':'total_Q5'})
+        final['total_Q5']=pd.qcut(final['total'], 5, labels=np.arange(5, 0, -1))
         final=final.astype(str)
 
         print(final)
