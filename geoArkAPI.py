@@ -588,6 +588,7 @@ def create_app(test_config=None):
 
         final=risk_factors[Q5_list]
         final=final.astype(str)
+        print(final)
 
         return jsonify(final.to_dict('records'))
         # #Get risk factors data for user selected risk factor
