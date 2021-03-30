@@ -578,32 +578,44 @@ def create_app(test_config=None):
     def factorsMapData():
 
         risk_factor=json.loads(request.data)
-        #Get risk factors data for user selected risk factor
         db = client.covid_dash
         risk_factors=pd.DataFrame(db[risk_factor].find({},{'_id':0}))
-
 
         # pull out columns to displays-- columns with Quantiles 
         Q5_list= [x for x in risk_factors if '_Q5' in x]
         Q5_list.append('cnty_fips')
+        Q5_list.append('total')
 
-        factors_list = [word.replace('_Q5','') for word in Q5_list]
+        final=risk_factors[Q5_list]
+        final=final.astype(str)
 
-        # calculate total risk factor
-        riskQ5=risk_factors[Q5_list]
-        Q5_list= [x for x in Q5_list if '_Q5' in x]
-        riskQ5["total"] = riskQ5[Q5_list].sum(axis=1)
-
-        # merge risk factors with total
-        factors=risk_factors[factors_list]
-        factors=factors.merge(riskQ5[['cnty_fips','total']], on='cnty_fips', how='left')
-        metadata=factors.agg({'max','min'}).transpose().reset_index().rename(columns={'index':'factor'})
+        return jsonify(final.to_dict('records'))
+        # #Get risk factors data for user selected risk factor
+        # db = client.covid_dash
+        # risk_factors=pd.DataFrame(db[risk_factor].find({},{'_id':0}))
 
 
-        factors=factors.astype(str)
-        metadata=metadata.astype(str)
-        together=[factors.to_dict('record'),metadata.to_dict('record')]
-        return jsonify(together)
+        # # pull out columns to displays-- columns with Quantiles 
+        # Q5_list= [x for x in risk_factors if '_Q5' in x]
+        # Q5_list.append('cnty_fips')
+
+        # factors_list = [word.replace('_Q5','') for word in Q5_list]
+
+        # # calculate total risk factor
+        # riskQ5=risk_factors[Q5_list]
+        # Q5_list= [x for x in Q5_list if '_Q5' in x]
+        # riskQ5["total"] = riskQ5[Q5_list].sum(axis=1)
+
+        # # merge risk factors with total
+        # factors=risk_factors[factors_list]
+        # factors=factors.merge(riskQ5[['cnty_fips','total']], on='cnty_fips', how='left')
+        # metadata=factors.agg({'max','min'}).transpose().reset_index().rename(columns={'index':'factor'})
+
+
+        # factors=factors.astype(str)
+        # metadata=metadata.astype(str)
+        # together=[factors.to_dict('record'),metadata.to_dict('record')]
+        # return jsonify(together)
 
 
 
