@@ -536,8 +536,9 @@ def create_app(test_config=None):
        
 
         weeklydeaths_county=county_dailydeaths.deaths.loc[county_dailydeaths.index >='2020-03-08'].resample('W-Mon').sum()
-        weeklydeaths_county.deaths=np.where(weeklydeaths_county.deaths <0, 0, weeklydeaths_county.deaths)
         weeklydeaths_county=weeklydeaths_county.reset_index()
+        weeklydeaths_county.deaths=np.where(weeklydeaths_county.deaths <0, 0, weeklydeaths_county.deaths)
+
 
         #create lists
         wk_dates=weeklycases_total.date.astype(str).to_list()
