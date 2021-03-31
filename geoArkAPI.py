@@ -512,8 +512,9 @@ def create_app(test_config=None):
         dailydeaths_total['date']=pd.to_datetime(dailydeaths_total.date)
         dailydeaths_total=dailydeaths_total.set_index('date')
         weeklydeaths_total=dailydeaths_total.deaths.loc[dailydeaths_total.index >='2020-03-08'].resample('W-Mon').sum()
-        weeklydeaths_total.deaths=np.where(weeklydeaths_total.deaths <0, 0, weeklydeaths_total.deaths)
         weeklydeaths_total=weeklydeaths_total.reset_index()
+        weeklydeaths_total.deaths=np.where(weeklydeaths_total.deaths <0, 0, weeklydeaths_total.deaths)
+
 
 
 
