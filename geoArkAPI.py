@@ -505,12 +505,14 @@ def create_app(test_config=None):
         dailycases_total['date']=pd.to_datetime(dailycases_total.date)
         dailycases_total=dailycases_total.set_index('date')
         weeklycases_total=dailycases_total.cases.loc[dailycases_total.index >='2020-03-08'].resample('W-Mon').sum()
+        weeklycases_total.cases=np.where(weeklycases_total.cases <0, 0, weeklycases_total.cases)
         weeklycases_total=weeklycases_total.reset_index()
 
 
         dailydeaths_total['date']=pd.to_datetime(dailydeaths_total.date)
         dailydeaths_total=dailydeaths_total.set_index('date')
         weeklydeaths_total=dailydeaths_total.deaths.loc[dailydeaths_total.index >='2020-03-08'].resample('W-Mon').sum()
+        weeklydeaths_total.cases=np.where(weeklydeaths_total.cases <0, 0, weeklydeaths_total.cases)
         weeklydeaths_total=weeklydeaths_total.reset_index()
 
 
@@ -529,9 +531,11 @@ def create_app(test_config=None):
 
 
         weeklycases_county=county_dailycases.cases.loc[county_dailycases.index >='2020-03-08'].resample('W-Mon').sum()
+        weeklycases_county.cases=np.where(weeklycases_county.cases <0, 0, weeklycases_county.cases)
         weeklycases_county=weeklycases_county.reset_index()
 
         weeklydeaths_county=county_dailydeaths.deaths.loc[county_dailydeaths.index >='2020-03-08'].resample('W-Mon').sum()
+        weeklydeaths_county.cases=np.where(weeklydeaths_county.cases <0, 0, weeklydeaths_county.cases)
         weeklydeaths_county=weeklydeaths_county.reset_index()
 
         #create lists
