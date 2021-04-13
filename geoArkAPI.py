@@ -308,17 +308,17 @@ def create_app(test_config=None):
     def colors(value, riskfactor):
 
         if (riskfactor=='accessibility'):
-            palette=['#4d2100', '#b34d00', '#ff6f00', '#ffb84d', '#fff5b3']
+            palette=['#4d2100','#b34d00','#ff6f00','#ffb84d','#fff5b3']
         elif (riskfactor=='healthresources'):
-            palette=['#4d2100', '#b34d00', '#ff6f00', '#ffb84d', '#fff5b3']
+            palette=['#4d2100','#b34d00','#ff6f00','#ffb84d','#fff5b3']
         elif (riskfactor=='exposure'):
-            palette=['#404040', '#676767', '#8c8c8c',  '#b3b3b3',  '#d9d9d9']
+            palette=['#404040', '#676767','#8c8c8c', '#b3b3b3','#d9d9d9']
         elif (riskfactor=='socioeconomic'):
             palette=['#470544','#7b2b88','#a05fb9','#a192d3','#b5c6fc’]
         elif (riskfactor=='susceptibility'):
-            palette=['#004c0e', '#019A1E', '#83ec13', '#e5fc4f', '#fbffb3']
+            palette=['#004c0e','#019A1E','#83ec13','#e5fc4f','#fbffb3']
         elif (riskfactor=='transmission'):
-            palette=['#000f4d','#0e388b','#51a4c8','#8fd1d6', '#b5fdf8']
+            palette=['#000f4d','#0e388b','#51a4c8','#8fd1d6','#b5fdf8']
 
         #palette= ['#2c7bb6','#8ec9d6','#ffe600','#e89438','#d7191c']
         if value <=1:
