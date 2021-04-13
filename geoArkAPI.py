@@ -434,7 +434,8 @@ def create_app(test_config=None):
         county_factors=county_factors.merge(mean_max, on='factors', how='left')
 
         # get color of bar graph based on quantiles
-        county_factors['Q5_color'] = county_factors.apply (lambda row: colors(row.Q5,risk_factor), axis=1)
+        county_factors['risk_factor']=risk_factor
+        county_factors['Q5_color'] = county_factors.apply (lambda row: colors(row.Q5,row.risk_factor), axis=1)
         county_factors=county_factors.merge(sources, on='factors', how='left')
         county_factors=county_factors.astype(str)
 
