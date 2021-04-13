@@ -308,7 +308,7 @@ def create_app(test_config=None):
     def colors(value, riskfactor):
 
         if (riskfactor=='accessibility'):
-            palette=['#4d2100','#b34d00','#ff6f00','#ffb84d','#fff5b3']
+            palette=['#640204', '#af0406', '#c7384b', '#e580a3', '#ffb3ed']
         elif (riskfactor=='healthresources'):
             palette=['#4d2100','#b34d00','#ff6f00','#ffb84d','#fff5b3']
         elif (riskfactor=='exposure'):
