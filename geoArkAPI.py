@@ -314,7 +314,7 @@ def create_app(test_config=None):
         elif (riskfactor=='exposure'):
             palette=['#404040', '#676767','#8c8c8c', '#b3b3b3','#d9d9d9']
         elif (riskfactor=='socioeconomic'):
-            palette=['#470544','#7b2b88','#a05fb9','#a192d3','#b5c6fc’]
+            palette=['#470544','#7b2b88','#a05fb9','#a192d3','#b5c6fc']
         elif (riskfactor=='susceptibility'):
             palette=['#004c0e','#019A1E','#83ec13','#e5fc4f','#fbffb3']
         elif (riskfactor=='transmission'):
