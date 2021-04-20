@@ -322,15 +322,15 @@ def create_app(test_config=None):
 
         #palette= ['#2c7bb6','#8ec9d6','#ffe600','#e89438','#d7191c']
         if value <=1:
-            return palette[0]
+            return palette[4]
         elif value==2:
-            return palette[1]
+            return palette[3]
         elif value==3:
             return palette[2]
         elif value==4:
-            return palette[3]
+            return palette[1]
         else:
-            return palette[4]
+            return palette[0]
 
 
 
