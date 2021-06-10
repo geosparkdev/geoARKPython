@@ -3,10 +3,8 @@ flask_cors
 sshtunnel
 pymongo
 uuid
-base64
 datetime
 pandas
-seaborn
 numpy
 plotly.express
-ssl
+waitress

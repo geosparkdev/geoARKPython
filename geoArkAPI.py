@@ -15,7 +15,7 @@ import base64
 
 from datetime import datetime
 import pandas as pd
-import seaborn as sns
+#import seaborn as sns  
 import numpy as np
 
 from urllib.request import urlopen 
@@ -23,18 +23,18 @@ import plotly.express as px
 import ssl
 
 
-MONGO_HOST = "128.206.117.150"
-MONGO_USER = "haithcoatt"
-MONGO_PASS = "Ke11ieJean"
+ MONGO_HOST = "128.206.117.150"
+ MONGO_USER = "haithcoatt"
+ MONGO_PASS = "Ke11ieJean"
 
-server = SSHTunnelForwarder(
-   MONGO_HOST,
-   ssh_username=MONGO_USER,
-   ssh_password=MONGO_PASS,
-  remote_bind_address=('127.0.0.1', 27017)
-)
-server.start()
-client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local port
+ server = SSHTunnelForwarder(
+    MONGO_HOST,
+    ssh_username=MONGO_USER,
+    ssh_password=MONGO_PASS,
+   remote_bind_address=('127.0.0.1', 27017)
+ )
+ server.start()
+ client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local port
 
 
 
@@ -1039,6 +1039,59 @@ def create_app(test_config=None):
         datasources= pd.DataFrame(list(db.covid_sources.find({'risk_factor':risk_factor},{'_id':0,'source_description':0,'risk_factor':0})))
         datasources=datasources.astype(str)
         return jsonify(datasources.to_dict("records"))
+
+
+
+
+ ################ Evaluation #####################
+    @app.route('/getsurvey2', methods=['GET'])
+    def getSurvey2():
+        counties_survey=pd.DataFrame([['CQ01','I found the counties dashboard engaging.',0,0,0,0,0],
+                 ['CQ02','I found the counties dashboard to be useful.',0,0,0,0,0],
+                 ['CQ03','I found the counties dashboard satisfying.',0,0,0,0,0],
+                 ['CQ04','The counties dashboard was aesthetically pleasing.',0,0,0,0,0],
+                 ['CQ05','The counties dashboard was easy to navigate.',0,0,0,0,0],
+                 ['CQ06','The buttons were easily identifiable.',0,0,0,0,0],
+                 ['CQ07','The layout of the dashboard components highlighted the important features of the dashboard.',0,0,0,0,0],
+                 ['CQ08','The risk factors data is relevant to my field of work.',0,0,0,0,0],
+                 ['CQ09','The map visual could help me with my projects/field of work.',0,0,0,0,0],
+                 ['CQ10','The risk factor bar chart could help me with my projects/field of work.',0,0,0,0,0],
+                 ['CQ11','The counties dashboard has provided me with insight into different risk factors that I did not consider before.',0,0,0,0,0],
+                 ['CQ12','I can see myself referencing the counties dashboard again to aid with my projects/field of work',0,0,0,0,0],
+                 ['CQ13','Each category offered an appropriate amount of risk factors. ',0,0,0,0,0],
+                 ['CQ14','The risk factors data was up-to-date and reliable. ',0,0,0,0,0],
+                 ['CQ15','The risk factors data can be used when considering different scenarios for pandemic mitigation.',0,0,0,0,0],
+                 ['CQ16','I would like to use the counties dashboard again.',0,0,0,0,0],
+                 ['CQ17','The counties dashboard is different than other dashboards I have previously used.',0,0,0,0,0],
+                 ['CQ18','The counties dashboard was easy to use.',0,0,0,0,0],
+                 ['CQ19','I quickly learned how to use the counties dashboard.',0,0,0,0,0],
+                 ['CQ20','The spread of risk values (high risk/ low risk) amongst Missouri counties was clearly seen on the map.',0,0,0,0,0],
+                 ['CQ21','I was able to see how a specific county’s risk factor values compared to the Missouri average value and maximum value and other counties.',0,0,0,0,0],
+                 ['CQ22','I could find how covid cases and deaths trended throughout time for Missouri overall and in different Missouri counties.',0,0,0,0,0],
+                 ['CQ23','Using the wind-rose plot, I was able to see the proportion of risk categories in a Missouri County.',0,0,0,0,0],
+                 ['CQ24','I can use the counties dashboard to learn about what different risk factors are prevalent in a specific Missouri county.',0,0,0,0,0],
+                 ['CQ25','The quick facts module provided a general overview of the county.',0,0,0,0,0],
+                 ['CQ26','The counties dashboard can be used to explore how the risk factor makeup of a county may relate to the spread of covid-19',0,0,0,0,0],
+                 ['CQ27','There were helpful prompts on how to use the features of the counties dashboard.',0,0,0,0,0],
+                 ['CQ28','It was obvious how to select risk factors for viewing on the map.',0,0,0,0,0],
+                 ['CQ29','I was able to find the description of each risk factor variable.',0,0,0,0,0],
+                 ['CQ30','It was easy to select/find different counties.',0,0,0,0,0],
+                 ['CQ31','I was able to locate information about the selected county using each component (map, barplot, windrose plot, covid plots).',0,0,0,0,0],
+                 ['CQ32','I was able to find the county I was interested in.',0,0,0,0,0],
+                 ['CQ33','It was clear which risk category was selected.',0,0,0,0,0],
+                 ['CQ34','It was clear which risk factor was visualized on the map.',0,0,0,0,0],
+                 ['CQ35','I could identify which county was selected.',0,0,0,0,0],
+                 ['CQ36','The color breaks of the risk values 1-5 were easily seen on the map and bar plot.',0,0,0,0,0],
+                 ['CQ37','It was easy to distinguish where counties had higher/low risk values.',0,0,0,0,0],
+                 ['CQ38','I could see and read all text.',0,0,0,0,0],
+                 ['CQ39','It is clear that the map component is related to the risk factor bar plots component.',0,0,0,0,0],
+                 ['CQ40','It was easy to identify what risk category I was looking at based on the color gradient of the risk factors.',0,0,0,0,0],
+                 ['CQ41','The risk factors were related to the risk category they were grouped within.',0,0,0,0,0]], 
+             columns=['ID','Question','StronglyDisagree','Disagree','Neutral','Agree','StronglyAgree'])
+        random=counties_survey.sample(frac=1).reset_index(drop=True)
+
+        return jsonify(random.to_dict("records"))
+
 
 
 #########################################################################
