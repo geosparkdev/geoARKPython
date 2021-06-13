@@ -1055,7 +1055,7 @@ def create_app(test_config=None):
         db_metadata = client.metadata
         metadata= pd.DataFrame(list(db_metadata.metadata.find()))
         attributes_all = json_normalize(metadata.to_dict("record"), record_path =['attributes'])
-        return jsonify(attributes_all.to_dict("records"))
+        return jsonify(attributes_all.loc[(attributes_all.attr_id.isnull())].to_dict("records"))
 
  ################ Evaluation #####################
     @app.route('/getsurvey2', methods=['GET'])
