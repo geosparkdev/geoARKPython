@@ -2,6 +2,9 @@
 #   I M P O R T S
 #  ---------------
 
+
+from pandas.io.json import json_normalize
+
 import json
 import flask
 from flask import jsonify, request
@@ -1042,6 +1045,17 @@ def create_app(test_config=None):
 
 
 
+
+
+############ geork #################
+
+
+@app.route('/getattributes', methods=['GET'])
+    def getattributes():
+        db_metadata = client.metadata
+        metadata= pd.DataFrame(list(db_metadata.metadata.find()))
+        attributes_all = json_normalize(metadata.to_dict("record"), record_path =['attributes'])
+        return jsonify(attributes_all.to_dict("records"))
 
  ################ Evaluation #####################
     @app.route('/getsurvey2', methods=['GET'])
