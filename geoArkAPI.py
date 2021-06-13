@@ -1050,7 +1050,7 @@ def create_app(test_config=None):
 ############ geork #################
 
 
-@app.route('/getattributes', methods=['GET'])
+    @app.route('/getattributes', methods=['GET'])
     def getattributes():
         db_metadata = client.metadata
         metadata= pd.DataFrame(list(db_metadata.metadata.find()))
