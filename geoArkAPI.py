@@ -1129,8 +1129,8 @@ def create_app(test_config=None):
         selected_data=selected_data.rename(columns={attribute_id:'attribute'}).drop(columns={fips})
 
         bin_labels_5 = [1, 2, 3, 4, 5]
-        selected_data['quants'] = pd.qcut(selected_data['attribute'],
-                              q=5,
+        selected_data['quants'] = pd.cut(selected_data['attribute'],
+                              bins=5,
                               labels=bin_labels_5)
 
 
