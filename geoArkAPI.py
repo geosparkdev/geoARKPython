@@ -1057,12 +1057,59 @@ def create_app(test_config=None):
         iso_key=json.loads(request.data)
 
         attributes_all = json_normalize(metadata.to_dict("record"), record_path =['attributes'])
-        attributes_all=attributes_all.loc[(attributes_all.attr_id.isnull()) & (attributes_all.iso_key==iso_key) & (attributes_all.entity_type=='COUNTY')]
+        if iso_key==0:
+            attributes_all=attributes_all.loc[(attributes_all.attr_id.isnull()) & (attributes_all.iso_key==iso_key) & (attributes_all.entity_type=='COUNTY')]
+        else:
+            attributes_all=attributes_all.loc[(attributes_all.attr_id.isnull()) & (attributes_all.entity_type=='COUNTY')]
         attributes_all=attributes_all[attributes_all["attr_desc"].str.contains('Covid')==False]
         attributes_all=attributes_all.astype(str)
 
 
         return jsonify(attributes_all.to_dict("records"))
+
+
+
+
+    def get_fips(county):
+        county=str(county)
+        if len(county)==14:
+                return county[-5:]
+        elif len(county)==15:
+                return county[-6:]
+        elif len(county)==4:
+            return '0'+county
+        elif len(county)==5:
+            return county
+        elif len(county)==10:
+            return '0'+county[:4]
+        elif len(county)==11:
+            return county[:5]
+        else:
+            return county
+        
+    @app.route('/getgeoarkdata', methods=['POST'])
+    def getgeoarkdata():
+        db_metadata = client.metadata
+
+        data=json.loads(request.data)
+
+        dataset_id=data['dataset_id']
+        # dataset_id=data.get('dataset_id')
+        attribute_id=data['attribute_id']
+        # attribute_id=data.get('attribute_id')
+
+        selected_meta=pd.DataFrame(list(db_metadata.metadata.find({'dataset_id':dataset_id})))
+        fips=selected_meta.loc_id.values[0]
+
+        selected_data=pd.DataFrame(list(db_metadata.bigdata.find({"dataset_id":dataset_id},{"_id":0,fips:1,attribute_id:1})))
+
+        selected_data['fips'] = selected_data.apply(
+         lambda row: get_fips(row[fips]),
+         axis=1)
+
+        selected_data=selected_data.rename(columns={attribute_id:'attribute'}).drop(columns={fips})
+        selected_data=selected_data.astype(str)
+        return jsonify(selected_data.to_dict("records"))
 
  ################ Evaluation #####################
     @app.route('/getsurvey2', methods=['GET'])
