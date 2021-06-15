@@ -1086,6 +1086,25 @@ def create_app(test_config=None):
             return county[:5]
         else:
             return county
+
+
+
+
+    def getcolor(value):
+        
+        palette= ['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494']
+        if value <=1:
+            return palette[0]
+        elif value==2:
+            return palette[1]
+        elif value==3:
+            return palette[2]
+        elif value==4:
+            return palette[3]
+        elif value==5:
+            return palette[4]
+        else:
+            return '#000000'
         
     @app.route('/getgeoarkdata', methods=['POST'])
     def getgeoarkdata():
@@ -1108,6 +1127,18 @@ def create_app(test_config=None):
          axis=1)
 
         selected_data=selected_data.rename(columns={attribute_id:'attribute'}).drop(columns={fips})
+
+        bin_labels_5 = [1, 2, 3, 4, 5]
+        selected_data['quants'] = pd.qcut(selected_data['attribute'],
+                              q=5,
+                              labels=bin_labels_5)
+
+
+        selected_data['color'] = selected_data.apply(
+         lambda row: getcolor(row['quants']),
+         axis=1)
+
+        
         selected_data=selected_data.astype(str)
         return jsonify(selected_data.to_dict("records"))
 
