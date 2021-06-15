@@ -1093,9 +1093,9 @@ def create_app(test_config=None):
 
         data=json.loads(request.data)
 
-        dataset_id=data['dataset_id']
+        dataset_id=data[0]
         # dataset_id=data.get('dataset_id')
-        attribute_id=data['attribute_id']
+        attribute_id=data[1]
         # attribute_id=data.get('attribute_id')
 
         selected_meta=pd.DataFrame(list(db_metadata.metadata.find({'dataset_id':dataset_id})))
