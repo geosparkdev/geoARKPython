@@ -1152,7 +1152,7 @@ def create_app(test_config=None):
         geojson=[{'type': 'FeatureCollection',
                 'features':list(props)}]
 
-        return jsonify(geojson)
+        return jsonify(geojson[0])
 
  ################ Evaluation #####################
     @app.route('/getsurvey2', methods=['GET'])
