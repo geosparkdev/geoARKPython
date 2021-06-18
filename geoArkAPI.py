@@ -1143,7 +1143,7 @@ def create_app(test_config=None):
         return jsonify(selected_data.to_dict("records"))
 
 
-    @app.route('/getuscountiesjson', methods=['POST'])
+    @app.route('/getuscountiesjson', methods=['GET'])
     def getuscountiesjson():
         db_metadata = client.metadata
 
