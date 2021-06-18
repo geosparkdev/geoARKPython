@@ -1145,7 +1145,7 @@ def create_app(test_config=None):
 
     @app.route('/getuscountiesjson', methods=['GET'])
     def getuscountiesjson():
-        db_metadata = client.metadata
+        db = client.metadata
 
         data2=pd.DataFrame(db.geoJSON_usCounties.find({},{'_id':0}))
         props=data2[['properties','geometry']].to_dict('records')
