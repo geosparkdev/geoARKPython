@@ -1142,6 +1142,18 @@ def create_app(test_config=None):
         selected_data=selected_data.astype(str)
         return jsonify(selected_data.to_dict("records"))
 
+
+    @app.route('/getuscountiesjson', methods=['POST'])
+    def getuscountiesjson():
+        db_metadata = client.metadata
+
+        data2=pd.DataFrame(db.geoJSON_usCounties.find({},{'_id':0}))
+        props=data2[['properties','geometry']].to_dict('records')
+        geojson=[{'type': 'FeatureCollection',
+                'features':list(props)}]
+
+        return geojson
+
  ################ Evaluation #####################
     @app.route('/getsurvey2', methods=['GET'])
     def getSurvey2():
