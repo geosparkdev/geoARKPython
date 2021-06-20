@@ -1092,10 +1092,17 @@ def create_app(test_config=None):
 
 
 
-    def getcolor(value):
-        
 
-        palette= ['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494']
+    def getcolor(value, pal_number):
+
+        if pal_number==5:
+            palette= ['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494']
+        elif pal_number==4:
+            palette= ['#ffffcc','#a1dab4','#41b6c4','#225ea8']
+        else:
+            palette= ['#edf8b1','#7fcdbb','#2c7fb8']
+
+            
         if value <=1:
             return palette[0]
         elif value==2:
@@ -1188,15 +1195,58 @@ def create_app(test_config=None):
 
 
 
+        
         if selected_data.attribute.nunique()>2:
-            bin_labels_5 = [1, 2, 3, 4, 5]
-            selected_data['quants'] = pd.qcut(selected_data['attribute'],
+        
+            temp=selected_data
+            temp['quants'] = pd.qcut(temp['attribute'],
                                 q=5,
-                                labels=bin_labels_5)
+        #                          labels=bin_labels_5,
+                                            duplicates='drop')
+            
+            value=0
+            bin_labels_5 = [1, 2, 3, 4, 5]
+            bin_labels_4 = [1, 2, 3, 4]
+            bin_labels_3 = [1, 2, 3]
+                
+            print(temp.quants.nunique())
+            
+            if temp.quants.nunique() == 5:
+                value=5
+                selected_data['quants'] = pd.qcut(selected_data['attribute'],
+                                                q=5,
+                                                labels=bin_labels_5,
+                                                duplicates='drop')
+                
+            elif temp.quants.nunique() == 4:
+                value=4
+                print('in here')
+                selected_data['quants'] = pd.qcut(selected_data['attribute'],
+                                                q=5,
+                                                labels=bin_labels_4,
+                                                duplicates='drop')
+            
+            elif temp.quants.nunique() == 3:
+                value=3
+            
+                selected_data['quants'] = pd.qcut(selected_data['attribute'],
+                                                q=5,
+                                                labels=bin_labels_3,
+                                                duplicates='drop')
 
+            else:
+                value=5
+                selected_data['quants'] = pd.qcut(selected_data['attribute'],
+                                                bins=5,
+                                                labels=bin_labels_5)
+
+
+
+
+            
 
             selected_data['color'] = selected_data.apply(
-            lambda row: getcolor(row['quants']),
+            lambda row: getcolor(row['quants'],value),
             axis=1)
         else:
             selected_data['color'] = selected_data.apply(binary_colors, axis=1)
