@@ -1153,7 +1153,7 @@ def create_app(test_config=None):
         if selected_data.attribute.nunique()>2:
             bin_labels_5 = [1, 2, 3, 4, 5]
             selected_data['quants'] = pd.qcut(selected_data['attribute'],
-                                q=5,
+                                q=[0, .2, .4, .6, .8, 1],
                                 labels=bin_labels_5)
 
 
