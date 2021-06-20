@@ -1184,6 +1184,7 @@ def create_app(test_config=None):
 
         print(selected_data)
         selected_data=selected_data.rename(columns={attribute_id:'attribute'}).drop(columns={fips})
+        selected_data=selected_data.loc[(selected_data.attribute.str.contains('\\d', regex=True))==True]
 
         # bin_labels_5 = [1, 2, 3, 4, 5]
         # selected_data['quants'] = pd.cut(selected_data['attribute'],
