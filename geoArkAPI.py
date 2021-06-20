@@ -1094,18 +1094,8 @@ def create_app(test_config=None):
 
     def getcolor(value):
         
-        palette= [
-            '#ffffd9',
-            '#edf8b1',
-            '#c7e9b4',
-            '#7fcdbb',
-            '#41b6c4',
-            '#1d91c0',
-            '#225ea8',
-            '#253494',
-            '#081d58'
 
-        ]
+        palette= ['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494']
         if value <=1:
             return palette[0]
         elif value==2:
@@ -1116,16 +1106,41 @@ def create_app(test_config=None):
             return palette[3]
         elif value==5:
             return palette[4]
-        elif value==6:
-            return palette[5]
-        elif value==7:
-            return palette[6]
-        elif value==8:
-            return palette[7]
-        elif value==9:
-            return palette[8]
         else:
             return '#000000'
+            
+        # palette= [
+        #     '#ffffd9',
+        #     '#edf8b1',
+        #     '#c7e9b4',
+        #     '#7fcdbb',
+        #     '#41b6c4',
+        #     '#1d91c0',
+        #     '#225ea8',
+        #     '#253494',
+        #     '#081d58'
+
+        # ]
+        # if value <=1:
+        #     return palette[0]
+        # elif value==2:
+        #     return palette[1]
+        # elif value==3:
+        #     return palette[2]
+        # elif value==4:
+        #     return palette[3]
+        # elif value==5:
+        #     return palette[4]
+        # elif value==6:
+        #     return palette[5]
+        # elif value==7:
+        #     return palette[6]
+        # elif value==8:
+        #     return palette[7]
+        # elif value==9:
+        #     return palette[8]
+        # else:
+        #     return '#000000'
 
 
 
@@ -1174,9 +1189,9 @@ def create_app(test_config=None):
 
 
         if selected_data.attribute.nunique()>2:
-            bin_labels_5 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-            selected_data['quants'] = pd.cut(selected_data['attribute'],
-                                bins=9,
+            bin_labels_5 = [1, 2, 3, 4, 5]
+            selected_data['quants'] = pd.qcut(selected_data['attribute'],
+                                q=5,
                                 labels=bin_labels_5)
 
 
