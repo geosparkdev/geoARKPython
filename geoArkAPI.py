@@ -1054,14 +1054,12 @@ def create_app(test_config=None):
     def getattributes():
         db_metadata = client.metadata
         metadata= pd.DataFrame(list(db_metadata.metadata.find()))
-        iso_key=json.loads(request.data)
 
         attributes_all = json_normalize(metadata.to_dict("record"), record_path =['attributes'])
-        if iso_key==0:
-            attributes_all=attributes_all.loc[(attributes_all.attr_id.isnull()) & (attributes_all.iso_key==iso_key) & (attributes_all.entity_type=='COUNTY')]
-        else:
-            attributes_all=attributes_all.loc[(attributes_all.attr_id.isnull()) & (attributes_all.entity_type=='COUNTY')]
-        attributes_all=attributes_all[attributes_all["attr_desc"].str.contains('Covid')==False]
+
+        attributes_all=attributes_all.loc[(attributes_all.attr_id.isnull()) & (attributes_all.entity_type=='COUNTY')
+                                & (attributes_all.dataset_id!='4fd71eac_01_daily')
+                                & (attributes_all.dataset_id!='4fd71eac_02_daily')]
         attributes_all=attributes_all.astype(str)
 
 
