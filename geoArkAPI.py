@@ -1084,7 +1084,7 @@ def create_app(test_config=None):
             return county[:5]
         elif len(county)==12:
             return '0'+county[:4]
-         elif len(county)==13:
+        elif len(county)==13:
             return county[:5]
         else:
             return county
