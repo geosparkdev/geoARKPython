@@ -1129,11 +1129,12 @@ def create_app(test_config=None):
         fips=selected_meta.loc_id.values[0]
 
         selected_data=pd.DataFrame(list(db_metadata.bigdata.find({"dataset_id":dataset_id},{"_id":0,fips:1,attribute_id:1})))
-
+        
         selected_data['fips'] = selected_data.apply(
          lambda row: get_fips(row[fips]),
          axis=1)
 
+        print(selected_data)
         selected_data=selected_data.rename(columns={attribute_id:'attribute'}).drop(columns={fips})
 
         # bin_labels_5 = [1, 2, 3, 4, 5]
