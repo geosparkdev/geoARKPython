@@ -1105,6 +1105,14 @@ def create_app(test_config=None):
             return palette[4]
         else:
             return '#000000'
+
+
+
+    def binary_colors(row):
+        if row['attribute'] == 1:
+            return '#253494'
+        else:
+            return '#ffffcc'
         
     @app.route('/getgeoarkdata', methods=['POST'])
     def getgeoarkdata():
@@ -1128,17 +1136,36 @@ def create_app(test_config=None):
 
         selected_data=selected_data.rename(columns={attribute_id:'attribute'}).drop(columns={fips})
 
-        bin_labels_5 = [1, 2, 3, 4, 5]
-        selected_data['quants'] = pd.cut(selected_data['attribute'],
-                              bins=5,
-                              labels=bin_labels_5)
+        # bin_labels_5 = [1, 2, 3, 4, 5]
+        # selected_data['quants'] = pd.cut(selected_data['attribute'],
+        #                       bins=5,
+        #                       labels=bin_labels_5)
 
 
-        selected_data['color'] = selected_data.apply(
-         lambda row: getcolor(row['quants']),
-         axis=1)
+        # selected_data['color'] = selected_data.apply(
+        #  lambda row: getcolor(row['quants']),
+        #  axis=1)
 
         
+        # selected_data=selected_data.astype(str)
+
+
+
+        if selected_data.attribute.nunique()>2:
+            bin_labels_5 = [1, 2, 3, 4, 5]
+            selected_data['quants'] = pd.cut(selected_data['attribute'],
+                                bins=5,
+                                labels=bin_labels_5)
+
+
+            selected_data['color'] = selected_data.apply(
+            lambda row: getcolor(row['quants']),
+            axis=1)
+        else:
+            selected_data['color'] = selected_data.apply(binary_colors, axis=1)
+
+
+
         selected_data=selected_data.astype(str)
         return jsonify(selected_data.to_dict("records"))
 
