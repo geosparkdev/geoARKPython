@@ -1057,7 +1057,7 @@ def create_app(test_config=None):
 
         attributes_all = json_normalize(metadata.to_dict("record"), record_path =['attributes'])
 
-        attributes_all=attributes_all.loc[(attributes_all.attr_id.isnull()) & (attributes_all.entity_type=='COUNTY')
+        attributes_all=attributes_all.loc[(attributes_all.attr_id.isnull())
                                 & (attributes_all.dataset_id!='4fd71eac_01_daily')
                                 & (attributes_all.dataset_id!='4fd71eac_02_daily')]
         attributes_all=attributes_all.astype(str)
