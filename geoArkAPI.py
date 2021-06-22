@@ -1053,10 +1053,13 @@ def create_app(test_config=None):
     @app.route('/getattributes', methods=['POST'])
     def getattributes():
         db_metadata = client.metadata
+        originators = pd.DataFrame(list(db_metadata.originators.find({},{"_id":0})))
         metadata= pd.DataFrame(list(db_metadata.metadata.find()))
+        
+        mid=metadata[['dataset_id','dataset_name','originator_id']].merge(originators[['originator_name','originator_id']], on='originator_id', how='left')
 
         attributes_all = json_normalize(metadata.to_dict("record"), record_path =['attributes'])
-
+        attributes_all=attributes_all.merge(mid[['dataset_id','dataset_name','originator_name']], on='dataset_id', how='left')
         attributes_all=attributes_all.loc[(attributes_all.attr_id.isnull())
                                 & (attributes_all.dataset_id!='4fd71eac_01_daily')
                                 & (attributes_all.dataset_id!='4fd71eac_02_daily')]
