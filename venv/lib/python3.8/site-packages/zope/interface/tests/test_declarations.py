@@ -289,6 +289,56 @@ class DeclarationTests(EmptyDeclarationTests):
         after = before + other
         self.assertEqual(list(after), [IFoo, IBar, IBaz])
 
+    def test___add___overlapping_interface(self):
+        # The derived interfaces end up with higher priority, and
+        # don't produce a C3 resolution order violation. This
+        # example produced a C3 error, and the resulting legacy order
+        # used to be wrong ([IBase, IDerived] instead of
+        # the other way).
+        from zope.interface import Interface
+        from zope.interface.interface import InterfaceClass
+        from zope.interface.tests.test_ro import C3Setting
+        from zope.interface import ro
+
+        IBase = InterfaceClass('IBase')
+        IDerived = InterfaceClass('IDerived', (IBase,))
+
+        with C3Setting(ro.C3.STRICT_IRO, True):
+            base = self._makeOne(IBase)
+            after = base + IDerived
+
+        self.assertEqual(after.__iro__, (IDerived, IBase, Interface))
+        self.assertEqual(after.__bases__, (IDerived, IBase))
+        self.assertEqual(list(after), [IDerived, IBase])
+
+    def test___add___overlapping_interface_implementedBy(self):
+        # Like test___add___overlapping_interface, but pulling
+        # in a realistic example. This one previously produced a
+        # C3 error, but the resulting legacy order was (somehow)
+        # correct.
+        from zope.interface import Interface
+        from zope.interface import implementedBy
+        from zope.interface import implementer
+        from zope.interface.tests.test_ro import C3Setting
+        from zope.interface import ro
+
+        class IBase(Interface):
+            pass
+
+        class IDerived(IBase):
+            pass
+
+        @implementer(IBase)
+        class Base(object):
+            pass
+
+        with C3Setting(ro.C3.STRICT_IRO, True):
+            after = implementedBy(Base) + IDerived
+
+        self.assertEqual(after.__sro__, (after, IDerived, IBase, Interface))
+        self.assertEqual(after.__bases__, (IDerived, IBase))
+        self.assertEqual(list(after), [IDerived, IBase])
+
 
 class TestImmutableDeclaration(EmptyDeclarationTests):
 
@@ -384,7 +434,7 @@ class TestImplements(NameAndModuleComparisonTestsMixin,
     def test___repr__(self):
         impl = self._makeOne()
         impl.__name__ = 'Testing'
-        self.assertEqual(repr(impl), '<implementedBy Testing>')
+        self.assertEqual(repr(impl), 'classImplements(Testing)')
 
     def test___reduce__(self):
         from zope.interface.declarations import implementedBy
@@ -544,7 +594,6 @@ class Test_implementedByFallback(unittest.TestCase):
     def test_builtins_added_to_cache(self):
         from zope.interface import declarations
         from zope.interface.declarations import Implements
-        from zope.interface._compat import _BUILTINS
         with _MonkeyDict(declarations,
                          'BuiltinImplementationSpecifications') as specs:
             self.assertEqual(list(self._callFUT(tuple)), [])
@@ -554,8 +603,8 @@ class Test_implementedByFallback(unittest.TestCase):
                 spec = specs[typ]
                 self.assertIsInstance(spec, Implements)
                 self.assertEqual(repr(spec),
-                                 '<implementedBy %s.%s>'
-                                 % (_BUILTINS, typ.__name__))
+                                 'classImplements(%s)'
+                                 % (typ.__name__,))
 
     def test_builtins_w_existing_cache(self):
         from zope.interface import declarations
@@ -1280,7 +1329,7 @@ class ProvidesClassTests(unittest.TestCase):
             pass
         spec = self._makeOne(Foo, IFoo)
         klass, args = spec.__reduce__()
-        self.assertTrue(klass is Provides)
+        self.assertIs(klass, Provides)
         self.assertEqual(args, (Foo, IFoo))
 
     def test___get___class(self):
@@ -1290,7 +1339,7 @@ class ProvidesClassTests(unittest.TestCase):
             pass
         spec = self._makeOne(Foo, IFoo)
         Foo.__provides__ = spec
-        self.assertTrue(Foo.__provides__ is spec)
+        self.assertIs(Foo.__provides__, spec)
 
     def test___get___instance(self):
         from zope.interface.interface import InterfaceClass
@@ -1304,12 +1353,228 @@ class ProvidesClassTests(unittest.TestCase):
             return foo.__provides__
         self.assertRaises(AttributeError, _test)
 
+
+class ProvidesClassStrictTests(ProvidesClassTests):
+    # Tests that require the strict C3 resolution order.
+
+    def _getTargetClass(self):
+        ProvidesClass = super(ProvidesClassStrictTests, self)._getTargetClass()
+        class StrictProvides(ProvidesClass):
+            def _do_calculate_ro(self, base_mros):
+                return ProvidesClass._do_calculate_ro(self, base_mros=base_mros, strict=True)
+        return StrictProvides
+
+    def test_overlapping_interfaces_corrected(self):
+        # Giving Provides(cls, IFace), where IFace is already
+        # provided by cls, doesn't produce invalid resolution orders.
+        from zope.interface import implementedBy
+        from zope.interface import Interface
+        from zope.interface import implementer
+
+        class IBase(Interface):
+            pass
+
+        @implementer(IBase)
+        class Base(object):
+            pass
+
+        spec = self._makeOne(Base, IBase)
+        self.assertEqual(spec.__sro__, (
+            spec,
+            implementedBy(Base),
+            IBase,
+            implementedBy(object),
+            Interface
+        ))
+
+
+class TestProvidesClassRepr(unittest.TestCase):
+
+    def _getTargetClass(self):
+        from zope.interface.declarations import ProvidesClass
+        return ProvidesClass
+
+    def _makeOne(self, *args, **kw):
+        return self._getTargetClass()(*args, **kw)
+
     def test__repr__(self):
+        from zope.interface.interface import InterfaceClass
+        IFoo = InterfaceClass("IFoo")
+        assert IFoo.__name__ == 'IFoo'
+        assert IFoo.__module__ == __name__
+        assert repr(IFoo) == '<InterfaceClass %s.IFoo>' % (__name__,)
+
+        IBar = InterfaceClass("IBar")
+
+        inst = self._makeOne(type(self), IFoo, IBar)
+        self.assertEqual(
+            repr(inst),
+            "directlyProvides(TestProvidesClassRepr, IFoo, IBar)"
+        )
+
+    def test__repr__module_provides_typical_use(self):
+        # as created through a ``moduleProvides()`` statement
+        # in a module body
+        from zope.interface.tests import dummy
+        provides = dummy.__provides__ # pylint:disable=no-member
+        self.assertEqual(
+            repr(provides),
+            "directlyProvides(sys.modules['zope.interface.tests.dummy'], IDummyModule)"
+        )
+
+    def test__repr__module_after_pickle(self):
+        # It doesn't matter, these objects can't be pickled.
+        import pickle
+        from zope.interface.tests import dummy
+        provides = dummy.__provides__ # pylint:disable=no-member
+        for proto in range(pickle.HIGHEST_PROTOCOL + 1):
+            with self.assertRaises(pickle.PicklingError):
+                pickle.dumps(provides, proto)
+
+    def test__repr__directlyProvides_module(self):
+        import sys
+        from zope.interface.tests import dummy
+        from zope.interface.declarations import directlyProvides
+        from zope.interface.declarations import alsoProvides
+        from zope.interface.interface import InterfaceClass
+
+        IFoo = InterfaceClass('IFoo')
+        IBar = InterfaceClass('IBar')
+
+        orig_provides = dummy.__provides__ # pylint:disable=no-member
+        del dummy.__provides__ # pylint:disable=no-member
+        self.addCleanup(setattr, dummy, '__provides__', orig_provides)
+
+        directlyProvides(dummy, IFoo)
+        provides = dummy.__provides__ # pylint:disable=no-member
+
+        self.assertEqual(
+            repr(provides),
+            "directlyProvides(sys.modules['zope.interface.tests.dummy'], IFoo)"
+        )
+
+        alsoProvides(dummy, IBar)
+        provides = dummy.__provides__ # pylint:disable=no-member
+
+        self.assertEqual(
+            repr(provides),
+            "directlyProvides(sys.modules['zope.interface.tests.dummy'], IFoo, IBar)"
+        )
+
+        # If we make this module also provide IFoo and IBar, then the repr
+        # lists both names.
+        my_module = sys.modules[__name__]
+        assert not hasattr(my_module, '__provides__')
+
+        directlyProvides(my_module, IFoo, IBar)
+        self.addCleanup(delattr, my_module, '__provides__')
+        self.assertIs(my_module.__provides__, provides)
+        self.assertEqual(
+            repr(provides),
+            "directlyProvides(('zope.interface.tests.dummy', "
+            "'zope.interface.tests.test_declarations'), "
+            "IFoo, IBar)"
+        )
+
+    def test__repr__module_provides_cached_shared(self):
+        from zope.interface.interface import InterfaceClass
+        from zope.interface.declarations import ModuleType
+        IFoo = InterfaceClass("IFoo")
+
+        inst = self._makeOne(ModuleType, IFoo)
+        inst._v_module_names += ('some.module',)
+        inst._v_module_names += ('another.module',)
+        self.assertEqual(
+            repr(inst),
+            "directlyProvides(('some.module', 'another.module'), IFoo)"
+        )
+
+    def test__repr__duplicate_names(self):
+        from zope.interface.interface import InterfaceClass
+        IFoo = InterfaceClass("IFoo", __module__='mod1')
+        IFoo2 = InterfaceClass("IFoo", __module__='mod2')
+        IBaz = InterfaceClass("IBaz")
+
+        inst = self._makeOne(type(self), IFoo, IBaz, IFoo2)
+        self.assertEqual(
+            repr(inst),
+            "directlyProvides(TestProvidesClassRepr, IFoo, IBaz, mod2.IFoo)"
+        )
+
+    def test__repr__implementedBy_in_interfaces(self):
+        from zope.interface import Interface
+        from zope.interface import implementedBy
+        class IFoo(Interface):
+            "Does nothing"
+
+        class Bar(object):
+            "Does nothing"
+
+        impl = implementedBy(type(self))
+
+        inst = self._makeOne(Bar, IFoo, impl)
+        self.assertEqual(
+            repr(inst),
+            'directlyProvides(Bar, IFoo, classImplements(TestProvidesClassRepr))'
+        )
+
+    def test__repr__empty_interfaces(self):
         inst = self._makeOne(type(self))
         self.assertEqual(
             repr(inst),
-            "<zope.interface.Provides for %r>"  % type(self)
+            'directlyProvides(TestProvidesClassRepr)',
         )
+
+    def test__repr__non_class(self):
+        class Object(object):
+            __bases__ = ()
+            __str__ = lambda _: self.fail("Should not call str")
+
+            def __repr__(self):
+                return '<Object>'
+        inst = self._makeOne(Object())
+        self.assertEqual(
+            repr(inst),
+            'directlyProvides(<Object>)',
+        )
+
+    def test__repr__providedBy_from_class(self):
+        from zope.interface.declarations import implementer
+        from zope.interface.declarations import providedBy
+        from zope.interface.interface import InterfaceClass
+        IFoo = InterfaceClass("IFoo")
+
+        @implementer(IFoo)
+        class Foo(object):
+            pass
+
+        inst = providedBy(Foo())
+        self.assertEqual(
+            repr(inst),
+            'classImplements(Foo, IFoo)'
+        )
+
+    def test__repr__providedBy_alsoProvides(self):
+        from zope.interface.declarations import implementer
+        from zope.interface.declarations import providedBy
+        from zope.interface.declarations import alsoProvides
+        from zope.interface.interface import InterfaceClass
+        IFoo = InterfaceClass("IFoo")
+        IBar = InterfaceClass("IBar")
+
+        @implementer(IFoo)
+        class Foo(object):
+            pass
+
+        foo = Foo()
+        alsoProvides(foo, IBar)
+
+        inst = providedBy(foo)
+        self.assertEqual(
+            repr(inst),
+            "directlyProvides(Foo, IBar, classImplements(Foo, IFoo))"
+        )
+
 
 
 class Test_Provides(unittest.TestCase):
@@ -1580,14 +1845,127 @@ class ClassProvidesTests(unittest.TestCase):
             pass
         cp = Foo.__provides__ = self._makeOne(Foo, type(Foo), IBar)
         self.assertEqual(cp.__reduce__(),
-                         (self._getTargetClass(), (Foo, type(Foo), IBar)))
+                         (type(cp), (Foo, type(Foo), IBar)))
 
-    def test__repr__(self):
+
+class ClassProvidesStrictTests(ClassProvidesTests):
+    # Tests that require the strict C3 resolution order.
+
+    def _getTargetClass(self):
+        ClassProvides = super(ClassProvidesStrictTests, self)._getTargetClass()
+        class StrictClassProvides(ClassProvides):
+            def _do_calculate_ro(self, base_mros):
+                return ClassProvides._do_calculate_ro(self, base_mros=base_mros, strict=True)
+        return StrictClassProvides
+
+    def test_overlapping_interfaces_corrected(self):
+        # Giving ClassProvides(cls, metaclass, IFace), where IFace is already
+        # provided by metacls, doesn't produce invalid resolution orders.
+        from zope.interface import implementedBy
+        from zope.interface import Interface
+        from zope.interface import implementer
+
+        class IBase(Interface):
+            pass
+
+        @implementer(IBase)
+        class metaclass(type):
+            pass
+
+        cls = metaclass(
+            'cls',
+            (object,),
+            {}
+        )
+
+        spec = self._makeOne(cls, metaclass, IBase)
+        self.assertEqual(spec.__sro__, (
+            spec,
+            implementedBy(metaclass),
+            IBase,
+            implementedBy(type),
+            implementedBy(object),
+            Interface
+        ))
+
+
+class TestClassProvidesRepr(unittest.TestCase):
+
+    def _getTargetClass(self):
+        from zope.interface.declarations import ClassProvides
+        return ClassProvides
+
+    def _makeOne(self, *args, **kw):
+        return self._getTargetClass()(*args, **kw)
+
+    def test__repr__empty(self):
         inst = self._makeOne(type(self), type)
         self.assertEqual(
             repr(inst),
-            "<zope.interface.declarations.ClassProvides for %r>"  % type(self)
+            "directlyProvides(TestClassProvidesRepr)"
         )
+
+    def test__repr__providing_one(self):
+        from zope.interface import Interface
+        class IFoo(Interface):
+            "Does nothing"
+
+        inst = self._makeOne(type(self), type, IFoo)
+        self.assertEqual(
+            repr(inst),
+            "directlyProvides(TestClassProvidesRepr, IFoo)"
+        )
+
+    def test__repr__duplicate_names(self):
+        from zope.interface.interface import InterfaceClass
+        IFoo = InterfaceClass("IFoo", __module__='mod1')
+        IFoo2 = InterfaceClass("IFoo", __module__='mod2')
+        IBaz = InterfaceClass("IBaz")
+
+        inst = self._makeOne(type(self), type, IFoo, IBaz, IFoo2)
+        self.assertEqual(
+            repr(inst),
+            "directlyProvides(TestClassProvidesRepr, IFoo, IBaz, mod2.IFoo)"
+        )
+
+    def test__repr__implementedBy(self):
+        from zope.interface.declarations import implementer
+        from zope.interface.declarations import implementedBy
+        from zope.interface.interface import InterfaceClass
+        IFoo = InterfaceClass("IFoo")
+
+        @implementer(IFoo)
+        class Foo(object):
+            pass
+
+        inst = implementedBy(Foo)
+        self.assertEqual(
+            repr(inst),
+            'classImplements(Foo, IFoo)'
+        )
+
+    def test__repr__implementedBy_generic_callable(self):
+        from zope.interface.declarations import implementedBy
+        # We can't get a __name__ by default, so we get a
+        # module name and a question mark
+        class Callable(object):
+            def __call__(self):
+                return self
+
+        inst = implementedBy(Callable())
+        self.assertEqual(
+            repr(inst),
+            'classImplements(%s.?)' % (__name__,)
+        )
+
+        c = Callable()
+        c.__name__ = 'Callable'
+        inst = implementedBy(c)
+        self.assertEqual(
+            repr(inst),
+            'classImplements(Callable)'
+        )
+
 
 class Test_directlyProvidedBy(unittest.TestCase):
 
@@ -2203,6 +2581,56 @@ class ObjectSpecificationDescriptorFallbackTests(unittest.TestCase):
         directlyProvides(foo, IBaz)
         self.assertEqual(list(foo.__providedBy__), [IBaz, IFoo])
 
+    def test_arbitrary_exception_accessing_provides_not_caught(self):
+
+        class MyException(Exception):
+            pass
+
+        class Foo(object):
+            __providedBy__ = self._makeOne()
+
+            @property
+            def __provides__(self):
+                raise MyException
+
+        foo = Foo()
+        with self.assertRaises(MyException):
+            getattr(foo, '__providedBy__')
+
+    def test_AttributeError_accessing_provides_caught(self):
+
+        class MyException(Exception):
+            pass
+
+        class Foo(object):
+            __providedBy__ = self._makeOne()
+
+            @property
+            def __provides__(self):
+                raise AttributeError
+
+        foo = Foo()
+        provided = getattr(foo, '__providedBy__')
+        self.assertIsNotNone(provided)
+
+    def test_None_in__provides__overrides(self):
+        from zope.interface import Interface
+        from zope.interface import implementer
+
+        class IFoo(Interface):
+            pass
+
+        @implementer(IFoo)
+        class Foo(object):
+
+            @property
+            def __provides__(self):
+                return None
+
+        Foo.__providedBy__ = self._makeOne()
+
+        provided = getattr(Foo(), '__providedBy__')
+        self.assertIsNone(provided)
 
 class ObjectSpecificationDescriptorTests(
         ObjectSpecificationDescriptorFallbackTests,

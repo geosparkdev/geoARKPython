@@ -26,18 +26,18 @@ import plotly.express as px
 import ssl
 
 
-MONGO_HOST = "128.206.117.150"
-MONGO_USER = "haithcoatt"
-MONGO_PASS = "Ke11ieJean"
+# MONGO_HOST = "128.206.117.150"
+# MONGO_USER = "haithcoatt"
+# MONGO_PASS = "Ke11ieJean"
 
-server = SSHTunnelForwarder(
-    MONGO_HOST,
-    ssh_username=MONGO_USER,
-    ssh_password=MONGO_PASS,
-    remote_bind_address=('127.0.0.1', 27017)
-)
-server.start()
-client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local port
+# server = SSHTunnelForwarder(
+#     MONGO_HOST,
+#     ssh_username=MONGO_USER,
+#     ssh_password=MONGO_PASS,
+#     remote_bind_address=('127.0.0.1', 27017)
+# )
+# server.start()
+# client = pymongo.MongoClient('127.0.0.1', server.local_bind_port) # server.local_bind_port is assigned local port
 
 
 
@@ -1280,53 +1280,97 @@ def create_app(test_config=None):
         return jsonify(geojson[0])
 
  ################ Evaluation #####################
+    @app.route('/getuserID', methods=['GET'])
+    def getUserID():
+        return jsonify(str(uuid.uuid4())[:10])
+
+
     @app.route('/getsurvey2', methods=['GET'])
     def getSurvey2():
-        counties_survey=pd.DataFrame([['CQ01','I found the counties dashboard engaging.',0,0,0,0,0],
-                 ['CQ02','I found the counties dashboard to be useful.',0,0,0,0,0],
-                 ['CQ03','I found the counties dashboard satisfying.',0,0,0,0,0],
-                 ['CQ04','The counties dashboard was aesthetically pleasing.',0,0,0,0,0],
-                 ['CQ05','The counties dashboard was easy to navigate.',0,0,0,0,0],
-                 ['CQ06','The buttons were easily identifiable.',0,0,0,0,0],
-                 ['CQ07','The layout of the dashboard components highlighted the important features of the dashboard.',0,0,0,0,0],
-                 ['CQ08','The risk factors data is relevant to my field of work.',0,0,0,0,0],
-                 ['CQ09','The map visual could help me with my projects/field of work.',0,0,0,0,0],
-                 ['CQ10','The risk factor bar chart could help me with my projects/field of work.',0,0,0,0,0],
-                 ['CQ11','The counties dashboard has provided me with insight into different risk factors that I did not consider before.',0,0,0,0,0],
-                 ['CQ12','I can see myself referencing the counties dashboard again to aid with my projects/field of work',0,0,0,0,0],
-                 ['CQ13','Each category offered an appropriate amount of risk factors. ',0,0,0,0,0],
-                 ['CQ14','The risk factors data was up-to-date and reliable. ',0,0,0,0,0],
-                 ['CQ15','The risk factors data can be used when considering different scenarios for pandemic mitigation.',0,0,0,0,0],
-                 ['CQ16','I would like to use the counties dashboard again.',0,0,0,0,0],
-                 ['CQ17','The counties dashboard is different than other dashboards I have previously used.',0,0,0,0,0],
-                 ['CQ18','The counties dashboard was easy to use.',0,0,0,0,0],
-                 ['CQ19','I quickly learned how to use the counties dashboard.',0,0,0,0,0],
-                 ['CQ20','The spread of risk values (high risk/ low risk) amongst Missouri counties was clearly seen on the map.',0,0,0,0,0],
-                 ['CQ21','I was able to see how a specific county’s risk factor values compared to the Missouri average value and maximum value and other counties.',0,0,0,0,0],
-                 ['CQ22','I could find how covid cases and deaths trended throughout time for Missouri overall and in different Missouri counties.',0,0,0,0,0],
-                 ['CQ23','Using the wind-rose plot, I was able to see the proportion of risk categories in a Missouri County.',0,0,0,0,0],
-                 ['CQ24','I can use the counties dashboard to learn about what different risk factors are prevalent in a specific Missouri county.',0,0,0,0,0],
-                 ['CQ25','The quick facts module provided a general overview of the county.',0,0,0,0,0],
-                 ['CQ26','The counties dashboard can be used to explore how the risk factor makeup of a county may relate to the spread of covid-19',0,0,0,0,0],
-                 ['CQ27','There were helpful prompts on how to use the features of the counties dashboard.',0,0,0,0,0],
-                 ['CQ28','It was obvious how to select risk factors for viewing on the map.',0,0,0,0,0],
-                 ['CQ29','I was able to find the description of each risk factor variable.',0,0,0,0,0],
-                 ['CQ30','It was easy to select/find different counties.',0,0,0,0,0],
-                 ['CQ31','I was able to locate information about the selected county using each component (map, barplot, windrose plot, covid plots).',0,0,0,0,0],
-                 ['CQ32','I was able to find the county I was interested in.',0,0,0,0,0],
-                 ['CQ33','It was clear which risk category was selected.',0,0,0,0,0],
-                 ['CQ34','It was clear which risk factor was visualized on the map.',0,0,0,0,0],
-                 ['CQ35','I could identify which county was selected.',0,0,0,0,0],
-                 ['CQ36','The color breaks of the risk values 1-5 were easily seen on the map and bar plot.',0,0,0,0,0],
-                 ['CQ37','It was easy to distinguish where counties had higher/low risk values.',0,0,0,0,0],
-                 ['CQ38','I could see and read all text.',0,0,0,0,0],
-                 ['CQ39','It is clear that the map component is related to the risk factor bar plots component.',0,0,0,0,0],
-                 ['CQ40','It was easy to identify what risk category I was looking at based on the color gradient of the risk factors.',0,0,0,0,0],
-                 ['CQ41','The risk factors were related to the risk category they were grouped within.',0,0,0,0,0]], 
-             columns=['ID','Question','StronglyDisagree','Disagree','Neutral','Agree','StronglyAgree'])
+        counties_survey=pd.DataFrame([['CQ01','I found the counties dashboard engaging.',-1],
+                 ['CQ02','I found the counties dashboard to be useful.',-1],
+                 ['CQ03','I found the counties dashboard satisfying.',-1],
+                 ['CQ04','The counties dashboard was aesthetically pleasing.',-1],
+                 ['CQ05','The counties dashboard was easy to navigate.',-1],
+                 ['CQ06','The buttons were easily identifiable.',-1],
+                 ['CQ07','The layout of the dashboard components highlighted the important features of the dashboard.',-1],
+                 ['CQ08','The risk factors data is relevant to my field of work.',-1],
+                 ['CQ09','The map visual could help me with my projects/field of work.',-1],
+                 ['CQ10','The risk factor bar chart could help me with my projects/field of work.',-1],
+                 ['CQ11','The counties dashboard has provided me with insight into different risk factors that I did not consider before.',-1],
+                 ['CQ12','I can see myself referencing the counties dashboard again to aid with my projects/field of work',-1],
+                 ['CQ13','Each category offered an appropriate amount of risk factors. ',-1],
+                 ['CQ14','The risk factors data was up-to-date and reliable. ',-1],
+                 ['CQ15','The risk factors data can be used when considering different scenarios for pandemic mitigation.',-1],
+                 ['CQ16','I would like to use the counties dashboard again.',-1],
+                 ['CQ17','The counties dashboard is different than other dashboards I have previously used.',-1],
+                 ['CQ18','The counties dashboard was easy to use.',-1],
+                 ['CQ19','I quickly learned how to use the counties dashboard.',-1],
+                 ['CQ20','The spread of risk values (high risk/ low risk) amongst Missouri counties was clearly seen on the map.',-1],
+                 ['CQ21','I was able to see how a specific county’s risk factor values compared to the Missouri average value and maximum value and other counties.',-1],
+                 ['CQ22','I could find how covid cases and deaths trended throughout time for Missouri overall and in different Missouri counties.',-1],
+                 ['CQ23','Using the wind-rose plot, I was able to see the proportion of risk categories in a Missouri County.',-1],
+                 ['CQ24','I can use the counties dashboard to learn about what different risk factors are prevalent in a specific Missouri county.',-1],
+                 ['CQ25','The quick facts module provided a general overview of the county.',-1],
+                 ['CQ26','The counties dashboard can be used to explore how the risk factor makeup of a county may relate to the spread of covid-19',-1],
+                 ['CQ27','There were helpful prompts on how to use the features of the counties dashboard.',-1],
+                 ['CQ28','It was obvious how to select risk factors for viewing on the map.',-1],
+                 ['CQ29','I was able to find the description of each risk factor variable.',-1],
+                 ['CQ30','It was easy to select/find different counties.',-1],
+                 ['CQ31','I was able to locate information about the selected county using each component (map, barplot, windrose plot, covid plots).',-1],
+                 ['CQ32','I was able to find the county I was interested in.',-1],
+                 ['CQ33','It was clear which risk category was selected.',-1],
+                 ['CQ34','It was clear which risk factor was visualized on the map.',-1],
+                 ['CQ35','I could identify which county was selected.',-1],
+                 ['CQ36','The color breaks of the risk values 1-5 were easily seen on the map and bar plot.',-1],
+                 ['CQ37','It was easy to distinguish where counties had higher/low risk values.',-1],
+                 ['CQ38','I could see and read all text.',-1],
+                 ['CQ39','It is clear that the map component is related to the risk factor bar plots component.',-1],
+                 ['CQ40','It was easy to identify what risk category I was looking at based on the color gradient of the risk factors.',-1],
+                 ['CQ41','The risk factors were related to the risk category they were grouped within.',-1]], 
+             columns=['ID','Question','Answer'])
         random=counties_survey.sample(frac=1).reset_index(drop=True)
 
         return jsonify(random.to_dict("records"))
+
+
+
+    @app.route('/getsurvey3', methods=['GET'])
+    def getSurvey3():
+        risk_survey=pd.DataFrame([
+            ['RQ01','I found the risk categories dashboard engaging.',-1],
+            ['RQ02','I found the risk categories dashboard to be useful.',-1],
+            ['RQ03','I found the risk categories dashboard satisfying.',-1],
+            ['RQ04','The risk categories dashboard was aesthetically pleasing.',-1],
+            ['RQ05','The risk categories data is relevant to my field of work.',-1],
+            ['RQ06','There are specific combinations of risk categories that interest me.',-1],
+            ['RQ07','I knew about the rural-urban continuum prior to using this dashboard.',-1],
+            ['RQ08','I was aware of the different type of risks that were prominent in different Missouri counties prior to using this dashboard.',-1],
+            ['RQ09','The risk categories dashboard has provided me with insight how different counties rank on the rural-urban continuum.',-1],
+            ['RQ10','I can see myself referencing the risk-categories dashboard again to aid with my projects/field of work',-1],
+            ['RQ11','I would like to use the risk categories dashboard again.',-1],
+            ['RQ12','The risk categories dashboard is different than different dashboards I have used before.',-1],
+            ['RQ13','It was clear what the Rural-Urban continuum values meant.',-1],
+            ['RQ14','The risk categories dashboard was easy to use.',-1],
+            ['RQ15','I quickly learned how to use the risk categories dashboard.',-1],
+            ['RQ16','I was able to visualize aggregated risk categories and determine which counties rank higher/lower.',-1],
+            ['RQ17','I can use the risk-category dashboard to determine which counties have the highest/lowest overall risk.',-1],
+            ['RQ18','I can use the risk-category dashboard to find relationships between risk categories and how rural/urban a county is.',-1],
+            ['RQ19','There were helpful prompts on how to use the features of the risk-categories dashboard.',-1],
+            ['RQ20','It was easy to select/deselect (aggregate) risk categories.',-1],
+            ['RQ21','I was able to identify which risk categories were selected.',-1],
+            ['RQ22','I was aware when the rural-urban continuum filter was applied and what range was selected.',-1],
+            ['RQ23','It was easy to find counties that I am interested in',-1],
+            ['RQ24','I could easily remove the rural-urban continuum filter.',-1],
+            ['RQ25','The color breaks of the risk values 1-5 were easily seen on the map and in the bar chart.',-1],
+            ['RQ26','It was easy to distinguish where counties had higher/low risk values.',-1],
+            ['RQ27','I could see and read all text.',-1]
+         ], 
+             columns=['ID','Question','Answer'])
+        random=risk_survey.sample(frac=1).reset_index(drop=True)
+
+        return jsonify(random.to_dict("records"))
+
 
 
 

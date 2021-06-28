@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/tiffanyyoung/Git/geoARKPython/venv"
+set -gx VIRTUAL_ENV "/Users/tiffanyyoung/Documents/Git/geoARKPython/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

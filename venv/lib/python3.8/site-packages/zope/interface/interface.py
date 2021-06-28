@@ -413,6 +413,13 @@ class Specification(SpecificationBase):
         __setBases,
         )
 
+    # This method exists for tests to override the way we call
+    # ro.calculate_ro(), usually by adding extra kwargs. We don't
+    # want to have a mutable dictionary as a class member that we pass
+    # ourself because mutability is bad, and passing **kw is slower than
+    # calling the bound function.
+    _do_calculate_ro = calculate_ro
+
     def _calculate_sro(self):
         """
         Calculate and return the resolution order for this object, using its ``__bases__``.
@@ -425,7 +432,7 @@ class Specification(SpecificationBase):
         # some bases that DO implement an interface, and some that DO
         # NOT. In such a mixed scenario, you wind up with a set of
         # bases to consider that look like this: [[..., Interface],
-        # [..., object], ...]. Depending on the order if inheritance,
+        # [..., object], ...]. Depending on the order of inheritance,
         # Interface can wind up before or after object, and that can
         # happen at any point in the tree, meaning Interface can wind
         # up somewhere in the middle of the order. Since Interface is
@@ -448,7 +455,7 @@ class Specification(SpecificationBase):
         # This requires that by the time this method is invoked, our bases
         # have settled their SROs. Thus, ``changed()`` must first
         # update itself before telling its descendents of changes.
-        sro = calculate_ro(self, base_mros={
+        sro = self._do_calculate_ro(base_mros={
             b: b.__sro__
             for b in self.__bases__
         })
@@ -883,10 +890,10 @@ class InterfaceClass(_InterfaceClassBase):
                 try:
                     invariant(obj)
                 except Invalid as error:
-                     if errors is not None:
-                         errors.append(error)
-                     else:
-                         raise
+                    if errors is not None:
+                        errors.append(error)
+                    else:
+                        raise
 
         if errors:
             raise Invalid(errors)
@@ -918,17 +925,21 @@ class InterfaceClass(_InterfaceClassBase):
             keys.update(base.getDirectTaggedValueTags())
         return keys
 
-    def __repr__(self):  # pragma: no cover
+    def __repr__(self):
         try:
             return self._v_repr
         except AttributeError:
-            name = self.__name__
-            m = self.__ibmodule__
-            if m:
-                name = '%s.%s' % (m, name)
+            name = str(self)
             r = "<%s %s>" % (self.__class__.__name__, name)
             self._v_repr = r # pylint:disable=attribute-defined-outside-init
             return r
+
+    def __str__(self):
+        name = self.__name__
+        m = self.__ibmodule__
+        if m:
+            name = '%s.%s' % (m, name)
+        return name
 
     def _call_conform(self, conform):
         try:
