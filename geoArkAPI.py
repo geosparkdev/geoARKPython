@@ -1313,6 +1313,14 @@ def create_app(test_config=None):
         return jsonify('user_survey_posted')
 
 
+    @app.route('/postcountiessurvey', methods=['POST'])
+    def postcountiessurvey():
+        db = client.evaluation
+        data=json.loads(request.data)
+        db.countiessurvey.insert_one(data)
+        return jsonify('counties_survey_posted')
+
+
     @app.route('/getsurvey2', methods=['GET'])
     def getSurvey2():
         counties_survey=pd.DataFrame([['CQ01','I found the counties dashboard engaging.',-1],
