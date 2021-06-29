@@ -1285,6 +1285,15 @@ def create_app(test_config=None):
         return jsonify(str(uuid.uuid4())[:10])
 
 
+
+    @app.route('/postusersurvey', methods=['POST'])
+    def postusersurvey():
+        db = client.evaluation
+        data=json.loads(request.data)
+        db.usersurvey.insert_one(data)
+        return jsonify('user_survey_posted')
+
+
     @app.route('/getsurvey2', methods=['GET'])
     def getSurvey2():
         counties_survey=pd.DataFrame([['CQ01','I found the counties dashboard engaging.',-1],
