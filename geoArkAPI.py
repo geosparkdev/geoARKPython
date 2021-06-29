@@ -1286,6 +1286,24 @@ def create_app(test_config=None):
 
 
 
+    @app.route('/countiesclicks', methods=['POST'])
+    def countiesclicks():
+        db = client.evaluation
+        data=json.loads(request.data)
+
+
+        clicks={
+            'userID':data.requestData.get('userID'),
+            'taskID':data.requestData.get('taskID'),
+            'event':data..requestData.get('event'),
+            'timestamp':datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        db.countiesclick.insert_one(clicks)
+        return jsonify('countiesclick_posted')
+
+
+
+
     @app.route('/postusersurvey', methods=['POST'])
     def postusersurvey():
         db = client.evaluation
