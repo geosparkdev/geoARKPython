@@ -1322,7 +1322,7 @@ def create_app(test_config=None):
         table['UserID']=data['userID']
 
         print('HEREHRHEHREH******')
-        print(table.to_dict(records))
+        print(table.to_dict('records'))
 
         #db.countiessurvey.insert_one(data)
         return jsonify('counties_survey_posted')
