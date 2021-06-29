@@ -1321,7 +1321,12 @@ def create_app(test_config=None):
         table=pd.DataFrame(data['survey'])
         table['UserID']=data['userID']
 
-        db.countiessurvey.insert_one(table.to_dict('records'))
+        print(table)
+        print('\n\n')
+        print(table.to_dict())
+        
+
+        #db.countiessurvey.insert_one(table.to_dict('records'))
         return jsonify('counties_survey_posted')
 
 
