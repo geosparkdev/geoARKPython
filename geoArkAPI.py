@@ -1323,7 +1323,7 @@ def create_app(test_config=None):
 
         print(table)
         print('\n\n')
-        print(table.to_dict())
+        print(table.to_dict("records"))
         
 
         #db.countiessurvey.insert_one(table.to_dict('records'))
