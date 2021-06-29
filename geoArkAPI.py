@@ -1290,6 +1290,7 @@ def create_app(test_config=None):
     def countiesclicks():
         db = client.evaluation
         data=json.loads(request.data)
+        print(data)
 
 
         clicks={
