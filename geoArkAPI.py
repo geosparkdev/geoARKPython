@@ -1294,9 +1294,9 @@ def create_app(test_config=None):
 
 
         clicks={
-            'userID':data.userID,
-            'taskID':data.taskID,
-            'event':data.event,
+            'userID':data['userID'],
+            'taskID':data['taskID'],
+            'event':data['event'],
             'timestamp':datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         db.countiesclick.insert_one(clicks)
