@@ -1317,7 +1317,14 @@ def create_app(test_config=None):
     def postcountiessurvey():
         db = client.evaluation
         data=json.loads(request.data)
-        db.countiessurvey.insert_one(data)
+
+        table=pd.DataFrame(data['survey'])
+        table['UserID']=data['userID']
+
+        print('HEREHRHEHREH******')
+        print(table.to_dict(records))
+
+        #db.countiessurvey.insert_one(data)
         return jsonify('counties_survey_posted')
 
 
