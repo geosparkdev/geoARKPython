@@ -1305,6 +1305,24 @@ def create_app(test_config=None):
 
 
 
+    @app.route('/riskcatclicks', methods=['POST'])
+    def riskcatclicks():
+        db = client.evaluation
+        data=json.loads(request.data)
+        print(data)
+
+
+        clicks={
+            'userID':data['userID'],
+            'taskID':data['taskID'],
+            'event':data['event'],
+            'timestamp':datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        db.riskcatclick.insert_one(clicks)
+        return jsonify('riskcatclick_posted')
+
+
+
     @app.route('/postusersurvey', methods=['POST'])
     def postusersurvey():
         db = client.evaluation
@@ -1323,6 +1341,19 @@ def create_app(test_config=None):
 
         db.countiessurvey.insert_many(table.to_dict("records"))
         return jsonify('counties_survey_posted')
+
+
+    @app.route('/postrisksurvey', methods=['POST'])
+    def postrisksurvey():
+        db = client.evaluation
+        data=json.loads(request.data)
+
+        table=pd.DataFrame(data['survey'])
+        table['UserID']=data['userID']
+
+        db.riskcatsurvey.insert_many(table.to_dict("records"))
+        return jsonify('riskcat_survey_posted')
+
 
 
     @app.route('/getsurvey2', methods=['GET'])
