@@ -458,7 +458,7 @@ def create_app(test_config=None):
         deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily','4fd71eac_02_daily_01':FIPS},{'_id':0})))
 
         db = client.covid_dash
-        susceptibility=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"Age65P_Nor":1, "TPops2701":1}))
+        susceptibility_1=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"Age65P_Nor":1, "TPops2701":1}))
         risktotal_5=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"normalized_0_5":1}))
         risk_total=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"risk_total":1}))
 
@@ -470,8 +470,8 @@ def create_app(test_config=None):
         exposure=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"exposure":1}))
 
 
-        total_population=susceptibility.TPops2701[0]
-        total_65=susceptibility.Age65P_Nor[0]
+        total_population=susceptibility_1.TPops2701[0]
+        total_65=susceptibility_1.Age65P_Nor[0]
 
         total_cases=cases.iloc[:,-1:].values[0][0]
         total_deaths=deaths.iloc[:,-1:].values[0][0]
