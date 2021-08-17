@@ -462,6 +462,13 @@ def create_app(test_config=None):
         risktotal_5=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"normalized_0_5":1}))
         risk_total=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"risk_total":1}))
 
+        accessibility=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"accessibility":1}))
+        socioeconomic=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"socioeconomic":1}))
+        transmission=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"transmission":1}))
+        susceptibility=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"susceptibility":1}))
+        healthresources=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"healthresources":1}))
+        exposure=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"exposure":1}))
+
 
         total_population=susceptibility.TPops2701[0]
         total_65=susceptibility.Age65P_Nor[0]
@@ -469,7 +476,18 @@ def create_app(test_config=None):
         total_cases=cases.iloc[:,-1:].values[0][0]
         total_deaths=deaths.iloc[:,-1:].values[0][0]
 
-        together=[str(total_population),str("{:.1f}".format(total_65*100))+"%",str(total_cases),str(total_deaths),str(round(risktotal_5.normalized_0_5.values[0],1)),str(risk_total.risk_total.values[0])]
+        together=[str(total_population)
+                 ,str("{:.1f}".format(total_65*100))+"%"
+                 ,str(total_cases),
+                 str(total_deaths),
+                 str(round(risktotal_5.normalized_0_5.values[0],1)),
+                 str(risk_total.risk_total.values[0]),
+                 str(accessibility.values[0]),
+                 str(socioeconomic.values[0]),
+                 str(transmission.values[0]),
+                 str(susceptibility.values[0]),
+                 str(healthresources.values[0]),
+                 str(exposure.values[0])]
 
 
         return jsonify(together)
