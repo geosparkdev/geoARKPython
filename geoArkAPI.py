@@ -482,12 +482,12 @@ def create_app(test_config=None):
                  str(total_deaths),
                  str(round(risktotal_5.normalized_0_5.values[0],1)),
                  str(risk_total.risk_total.values[0]),
-                 str(accessibility.values[0]),
-                 str(socioeconomic.values[0]),
-                 str(transmission.values[0]),
-                 str(susceptibility.values[0]),
-                 str(healthresources.values[0]),
-                 str(exposure.values[0])]
+                 str(accessibility.accessibility.values[0]),
+                 str(socioeconomic.socioeconomic.values[0]),
+                 str(transmission.transmission.values[0]),
+                 str(susceptibility.susceptibility.values[0]),
+                 str(healthresources.healthresources.values[0]),
+                 str(exposure.exposure.values[0])]
 
 
         return jsonify(together)
