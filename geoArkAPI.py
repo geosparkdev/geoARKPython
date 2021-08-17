@@ -460,6 +460,7 @@ def create_app(test_config=None):
         db = client.covid_dash
         susceptibility=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"Age65P_Nor":1, "TPops2701":1}))
         risktotal_5=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"normalized_0_5":1}))
+        risk_total=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"risk_total":1}))
 
 
         total_population=susceptibility.TPops2701[0]
@@ -468,7 +469,7 @@ def create_app(test_config=None):
         total_cases=cases.iloc[:,-1:].values[0][0]
         total_deaths=deaths.iloc[:,-1:].values[0][0]
 
-        together=[str(total_population),str("{:.1f}".format(total_65*100))+"%",str(total_cases),str(total_deaths),str(round(risktotal_5.normalized_0_5.values[0],1))]
+        together=[str(total_population),str("{:.1f}".format(total_65*100))+"%",str(total_cases),str(total_deaths),str(round(risktotal_5.normalized_0_5.values[0],1)),str(risk_total)]
 
 
         return jsonify(together)
