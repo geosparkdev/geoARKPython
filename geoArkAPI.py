@@ -1061,6 +1061,7 @@ def create_app(test_config=None):
         datasources= pd.DataFrame(list(db.covid_sources.find({'risk_factor':risk_factor},{'_id':0,'source_description':0,'risk_factor':0})))
         datasources=datasources.loc[datasources.field.str.contains('Q5')==False]
         datasources=datasources.astype(str)
+        datasources=datasources.loc[datasources.field!='total']
         return jsonify(datasources.to_dict("records"))
 
 
