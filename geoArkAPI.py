@@ -1424,7 +1424,7 @@ def create_app(test_config=None):
              columns=['ID','Question','Answer'])
         #random=counties_survey.sample(frac=1).reset_index(drop=True)
 
-        return jsonify(counties_survey.to_dict("records"))
+        return jsonify(random.to_dict("records"))
 
 
 
