@@ -510,7 +510,7 @@ def create_app(test_config=None):
 
         #create lists
 
-        weekly_cases['date']=pd.to_datetime(weekly_cases.date)
+        weekly_cases['date']=weekly_cases.date.apply(lambda x: x.strftime('%Y-%m-%d'))
         wk_dates=weekly_cases.date.astype(str).to_list()
         wk_county_cases=weekly_cases.cases.astype(str).to_list()
         wk_county_deaths=weekly_deaths.deaths.astype(str).to_list()
