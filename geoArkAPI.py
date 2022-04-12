@@ -472,8 +472,8 @@ def create_app(test_config=None):
         total_population=susceptibility_1.TPops2701[0]
         total_65=susceptibility_1.Age65P_Nor[0]
 
-        total_cases=covid.total_cases.values[0]
-        total_deaths=covid.total_deaths.values[0]
+        total_cases=int(covid.total_cases.values[0])
+        total_deaths=int(covid.total_deaths.values[0])
 
         together=[str(total_population),
                  str("{:.1f}".format(total_65*100))+"%",
