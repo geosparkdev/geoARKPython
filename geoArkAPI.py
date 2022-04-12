@@ -15,6 +15,7 @@ import pprint
 import uuid as uuid
 from io import StringIO
 import base64
+import sys
 
 from datetime import datetime
 import pandas as pd
@@ -496,8 +497,12 @@ def create_app(test_config=None):
     @app.route('/getcovidcasesdeaths', methods=['POST'])
     def getCovidcasesdeaths():
 
-        #FIPS=json.loads(request.data)
-        FIPS='29001'
+        
+
+        FIPS=json.loads(request.data)
+        print(FIPS)
+        sys.stdout.flush()
+        #FIPS='29001'
      
 
         db = client.covid_dash
