@@ -505,15 +505,22 @@ def create_app(test_config=None):
 
         weekly_cases=pd.DataFrame(db.nytimes_weekly_cases.find({'fips':FIPS}))
         weekly_deaths=pd.DataFrame(db.nytimes_weekly_deaths.find({'fips':FIPS}))
+        MO_weekly_cases=pd.DataFrame(db.nytimes_mo_weekly_cases.find())
+        MO_weekly_deaths=pd.DataFrame(db.nytimes_mo_weekly_deaths.find())
+
 
         #create lists
         wk_dates=weekly_cases.date.astype(str).to_list()
         wk_county_cases=weekly_cases.cases.astype(str).to_list()
         wk_county_deaths=weekly_deaths.deaths.astype(str).to_list()
+        wk_MO_cases=MO_weekly_cases.cases.astype(str).to_list()
+        wk_MO_deaths=MO_weekly_deaths.deaths.astype(str).to_list()
+
+
 
 
         # put list together to send to front end
-        together=[wk_dates,wk_county_cases,wk_county_deaths]
+        together=[wk_dates,wk_county_cases,wk_county_deaths,wk_MO_cases,wk_MO_deaths]
 
         # db = client.metadata
         # metadata_cases=pd.DataFrame(db.metadata.find({'dataset_id':'4fd71eac_01_daily'}))
