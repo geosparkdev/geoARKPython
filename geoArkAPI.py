@@ -452,12 +452,11 @@ def create_app(test_config=None):
     def getquickstats():
         FIPS=json.loads(request.data)
         
-        
-        db = client.metadata
-        cases = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_01_daily','4fd71eac_01_daily_01':FIPS},{'_id':0})))
-        deaths = pd.DataFrame(list(db.bigdata.find({"dataset_id":'4fd71eac_02_daily','4fd71eac_02_daily_01':FIPS},{'_id':0})))
-
         db = client.covid_dash
+        covid = pd.DataFrame(db.covid_totals.find({'countyFIPS':str(FIPS)}))
+  
+
+        
         susceptibility_1=pd.DataFrame(db.susceptibility.find({"cnty_fips":FIPS},{"Age65P_Nor":1, "TPops2701":1}))
         risktotal_5=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"normalized_0_5":1}))
         risk_total=pd.DataFrame(db.riskfactor_totals.find({"cnty_fips":FIPS},{"risk_total":1}))
@@ -473,8 +472,8 @@ def create_app(test_config=None):
         total_population=susceptibility_1.TPops2701[0]
         total_65=susceptibility_1.Age65P_Nor[0]
 
-        total_cases=cases.iloc[:,-1:].values[0][0]
-        total_deaths=deaths.iloc[:,-1:].values[0][0]
+        total_cases=covid.total_cases
+        total_deaths=total_cases.total_deaths
 
         together=[str(total_population),
                  str("{:.1f}".format(total_65*100))+"%",
