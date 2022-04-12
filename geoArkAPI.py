@@ -376,7 +376,6 @@ def create_app(test_config=None):
         county_susc=county_susc.merge(Q5, on='susc_factors', how='left')
 
         county_susc=county_susc.merge(mean_max, on='susc_factors', how='left')
-        print(county_susc)
         
         county_susc['Q5_color'] = county_susc.apply (lambda row: colors(row.Q5), axis=1)
 
@@ -650,7 +649,6 @@ def create_app(test_config=None):
         final['total_Q5']=pd.qcut(final['total'], 5, labels=np.arange(1, 6, 1))
         final=final.astype(str)
 
-        print(final)
 
         return jsonify(final.to_dict('records'))
         # #Get risk factors data for user selected risk factor
@@ -995,13 +993,8 @@ def create_app(test_config=None):
 
         ## accessibility, exposure, health resources, socioeconomic, susceptiblity, transmission
         db = client.covid_dash
-        print('STUFF HERER HERHEHREHR')
-    
+     
         data=json.loads(request.data)
-
-        print(data.get('risk_factors'))
-
-        print('#*$*#$*#$*#*')
 
 
         risk_factors_bool=data.get('risk_factors')
@@ -1009,14 +1002,13 @@ def create_app(test_config=None):
 
         risk_factors=pd.DataFrame(data={"in_use":risk_factors_bool,"risk_factor":risk_factors_labels})
         filters=pd.DataFrame(list(db.filters.find({},{"_id":0})))
-        print("printing risk factors")
-        print(risk_factors)
+
         
         if data.get('filter1_on')==1:
             filter_counties=filters.loc[(filters[data.get('filter1_var')]>=data.get('filter1_min')) & (filters[data.get('filter1_var')]<=data.get('filter1_max'))]
             filter_counties=filter_counties.rename(columns={'cnty_fips':'countyFIPS'})
             totals=pd.DataFrame(db.covid_totals.find({},{'_id':0}))
-            print('in loop')
+
             
             totals=filter_counties.merge(totals,on='countyFIPS',how='left')
         else:
@@ -1035,7 +1027,6 @@ def create_app(test_config=None):
         labels_comb=['tot_'+ s for s in labels]
 
         totals['total_risk']=totals[labels_comb].sum(axis=1)
-        print(totals)
         totals['County Name'] = totals['County Name'].str.replace(r'County', '')
 
         totals_sorted=totals.sort_values('total_risk', ascending=False)
@@ -1222,7 +1213,6 @@ def create_app(test_config=None):
          lambda row: get_fips(row[fips]),
          axis=1)
 
-        print(selected_data)
         selected_data=selected_data.rename(columns={attribute_id:'attribute'}).drop(columns={fips})
         selected_data['attribute']=selected_data['attribute'].astype(str)
         selected_data=selected_data.loc[(selected_data.attribute.str.contains('\\d', regex=True))==True]
@@ -1256,8 +1246,7 @@ def create_app(test_config=None):
             bin_labels_5 = [1, 2, 3, 4, 5]
             bin_labels_4 = [1, 2, 3, 4]
             bin_labels_3 = [1, 2, 3]
-                
-            print(temp.quants.nunique())
+
             
             if temp.quants.nunique() == 5:
                 value=5
@@ -1327,7 +1316,7 @@ def create_app(test_config=None):
     def countiesclicks():
         db = client.evaluation
         data=json.loads(request.data)
-        print(data)
+
 
 
         clicks={
@@ -1346,7 +1335,7 @@ def create_app(test_config=None):
     def riskcatclicks():
         db = client.evaluation
         data=json.loads(request.data)
-        print(data)
+
 
 
         clicks={
