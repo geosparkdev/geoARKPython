@@ -499,11 +499,7 @@ def create_app(test_config=None):
 
         
 
-        FIPS=json.loads(request.data)
-        print(FIPS)
-        sys.stdout.flush()
-        #FIPS='29001'
-     
+        FIPS=str(json.loads(request.data))
 
         db = client.covid_dash
 
