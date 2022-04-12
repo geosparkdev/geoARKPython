@@ -1257,7 +1257,6 @@ def create_app(test_config=None):
                 
             elif temp.quants.nunique() == 4:
                 value=4
-                print('in here')
                 selected_data['quants'] = pd.qcut(selected_data['attribute'],
                                                 q=5,
                                                 labels=bin_labels_4,
