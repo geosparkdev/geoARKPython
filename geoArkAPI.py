@@ -503,8 +503,8 @@ def create_app(test_config=None):
 
         db = client.covid_dash
 
-        weekly_cases=db.nytimes_weekly_cases.find({'fips':FIPS})
-        weekly_deaths=db.nytimes_weekly_deaths.find({'fips':FIPS})
+        weekly_cases=pd.DataFrame(db.nytimes_weekly_cases.find({'fips':FIPS}))
+        weekly_deaths=pd.DataFrame(db.nytimes_weekly_deaths.find({'fips':FIPS}))
 
         #create lists
         wk_dates=weekly_cases.date.astype(str).to_list()
