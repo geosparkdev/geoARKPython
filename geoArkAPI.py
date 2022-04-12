@@ -495,6 +495,7 @@ def create_app(test_config=None):
 
     @app.route('/getcovidcasesdeaths', methods=['POST'])
     def getCovidcasesdeaths():
+        print("(#$)(#$*)#($*#)($*#)($*")
 
         FIPS=json.loads(request.data)
      
@@ -502,7 +503,7 @@ def create_app(test_config=None):
         db = client.covid_dash
 
         weekly_cases=pd.DataFrame(db.nytimes_weekly_cases.find({'fips':FIPS}))
-
+        
         print(weekly_cases)
         weekly_deaths=pd.DataFrame(db.nytimes_weekly_deaths.find({'fips':FIPS}))
         MO_weekly_cases=pd.DataFrame(db.nytimes_mo_weekly_cases.find())
