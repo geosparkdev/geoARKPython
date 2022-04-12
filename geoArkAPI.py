@@ -605,7 +605,7 @@ def create_app(test_config=None):
         # wk_MO_deaths.pop()
 
         # put list together to send to front end
-        together=[wk_dates,wk_county_cases,wk_county_deaths,wk_MO_cases,wk_MO_deaths]
+        #together=[wk_dates,wk_county_cases,wk_county_deaths,wk_MO_cases,wk_MO_deaths]
 
         return jsonify(together)
 
