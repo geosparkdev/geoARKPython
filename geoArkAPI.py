@@ -497,13 +497,13 @@ def create_app(test_config=None):
     def getCovidcasesdeaths():
 
         FIPS=json.loads(request.data)
-        print(FIPS)
-        print("HEREHEHREHRE")
-
+     
 
         db = client.covid_dash
 
         weekly_cases=pd.DataFrame(db.nytimes_weekly_cases.find({'fips':FIPS}))
+
+        print(weekly_cases)
         weekly_deaths=pd.DataFrame(db.nytimes_weekly_deaths.find({'fips':FIPS}))
         MO_weekly_cases=pd.DataFrame(db.nytimes_mo_weekly_cases.find())
         MO_weekly_deaths=pd.DataFrame(db.nytimes_mo_weekly_deaths.find())
