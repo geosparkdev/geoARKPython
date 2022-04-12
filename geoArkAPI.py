@@ -495,7 +495,6 @@ def create_app(test_config=None):
 
     @app.route('/getcovidcasesdeaths', methods=['POST'])
     def getCovidcasesdeaths():
-        print("(#$)(#$*)#($*#)($*#)($*")
 
         FIPS=json.loads(request.data)
      
@@ -504,13 +503,14 @@ def create_app(test_config=None):
 
         weekly_cases=pd.DataFrame(db.nytimes_weekly_cases.find({'fips':FIPS}))
         
-        print(weekly_cases)
         weekly_deaths=pd.DataFrame(db.nytimes_weekly_deaths.find({'fips':FIPS}))
         MO_weekly_cases=pd.DataFrame(db.nytimes_mo_weekly_cases.find())
         MO_weekly_deaths=pd.DataFrame(db.nytimes_mo_weekly_deaths.find())
 
 
         #create lists
+
+        weekly_cases['date']=pd.to_datetime(weekly_cases.date)
         wk_dates=weekly_cases.date.astype(str).to_list()
         wk_county_cases=weekly_cases.cases.astype(str).to_list()
         wk_county_deaths=weekly_deaths.deaths.astype(str).to_list()
