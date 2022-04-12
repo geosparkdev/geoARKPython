@@ -512,10 +512,15 @@ def create_app(test_config=None):
 
         weekly_cases['date']=weekly_cases.date.apply(lambda x: x.strftime('%Y-%m-%d'))
         wk_dates=weekly_cases.date.astype(str).to_list()
+        wk_dates.pop()
         wk_county_cases=weekly_cases.cases.astype(str).to_list()
+        wk_county_cases.pop()
         wk_county_deaths=weekly_deaths.deaths.astype(str).to_list()
+        wk_county_deaths.pop()
         wk_MO_cases=MO_weekly_cases.cases.astype(str).to_list()
+        wk_MO_cases.pop()
         wk_MO_deaths=MO_weekly_deaths.deaths.astype(str).to_list()
+        wk_MO_deaths.pop()
 
 
 
