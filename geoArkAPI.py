@@ -717,10 +717,8 @@ def create_app(test_config=None):
 
     @app.route('/getCovidDate', methods=['GET'])
     def getCovidDate():
-        db = client.metadata
-        metadata_daily = pd.DataFrame(db.metadata.find({"update_frequency":"daily"}))
-        date=pd.to_datetime(metadata_daily.loc[metadata_daily.dataset_id=='4fd71eac_01_daily'].upload_date).dt.date.values[0]
-        date_string=date.strftime('%m/%d/%Y')
+        ## this use to be synced to the automated table -- but this was changed, this is left here in case want to put date feature in
+        date_string=datetime.today().strftime('%Y-%m-%d')
         return jsonify(date_string)
 
 
