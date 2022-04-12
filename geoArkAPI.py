@@ -496,7 +496,8 @@ def create_app(test_config=None):
     @app.route('/getcovidcasesdeaths', methods=['POST'])
     def getCovidcasesdeaths():
 
-        FIPS=json.loads(request.data)
+        #FIPS=json.loads(request.data)
+        FIPS='29001'
      
 
         db = client.covid_dash
