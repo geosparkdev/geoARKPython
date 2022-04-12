@@ -498,6 +498,8 @@ def create_app(test_config=None):
     def getCovidcasesdeaths():
 
         FIPS=json.loads(request.data)
+        print(FIPS)
+        print("HEREHEHREHRE")
 
 
         db = client.covid_dash
